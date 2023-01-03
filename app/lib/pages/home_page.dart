@@ -1,0 +1,67 @@
+import 'package:app/pages/despesas/home_despesa_page.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/material.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _counter = 0;
+  int _currentIndex = 0;
+  List<Widget> telas = [];
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: returnView(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _incrementCounter,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ),
+        bottomNavigationBar: returnNavigatorBarBottom());
+  }
+
+  returnNavigatorBarBottom() {
+    return CurvedNavigationBar(
+      color: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      animationDuration: Duration(milliseconds: 300),
+      onTap: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
+      items: [
+        Icon(
+          Icons.home,
+          color: Theme.of(context).colorScheme.background,
+        ),
+        Icon(
+          Icons.favorite,
+          color: Theme.of(context).colorScheme.background,
+        ),
+        Icon(Icons.settings, color: Theme.of(context).colorScheme.background),
+      ],
+    );
+  }
+
+  returnView() {
+    telas = [];
+    telas.add(HomeDespesaPage());
+    telas.add(HomeDespesaPage());
+    telas.add(HomeDespesaPage());
+    return telas[_currentIndex];
+  }
+}
