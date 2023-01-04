@@ -24,13 +24,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: returnView(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _incrementCounter,
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
-        ),
-        bottomNavigationBar: returnNavigatorBarBottom());
+        body: returnView(), bottomNavigationBar: returnNavigatorBarBottom());
   }
 
   returnNavigatorBarBottom() {
@@ -49,7 +43,7 @@ class _HomePageState extends State<HomePage> {
           color: Theme.of(context).colorScheme.background,
         ),
         Icon(
-          Icons.favorite,
+          Icons.incomplete_circle_sharp,
           color: Theme.of(context).colorScheme.background,
         ),
         Icon(Icons.settings, color: Theme.of(context).colorScheme.background),

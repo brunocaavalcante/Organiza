@@ -1,1 +1,4 @@
-class CategoriaDepesa {}
+class CategoriaDepesa {
+  String id = "";
+  String descricao = "";
+}

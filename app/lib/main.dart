@@ -52,7 +52,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
-          colorSchemeSeed: Colors.purple,
+          colorSchemeSeed: Colors.green,
           brightness: tema,
         ),
         home: const AuthCheck(),
