@@ -1,3 +1,4 @@
+import 'package:app/services/despesa_service.dart';
 import 'package:app/services/file_service.dart';
 import 'package:app/services/usuario_service.dart';
 import 'package:app/theme/preferencia_tema.dart';
@@ -12,7 +13,8 @@ void main() async {
   await Firebase.initializeApp();
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => UserService()),
-    ChangeNotifierProvider(create: (context) => FileService())
+    ChangeNotifierProvider(create: (context) => FileService()),
+    ChangeNotifierProvider(create: (context) => DespesaService())
   ], child: const App()));
 }
 

@@ -3,8 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/date_ultils.dart';
 import '../../core/masks.dart';
-import '../../models/despesa.dart';
+import '../../models/operacao.dart';
 import '../../services/usuario_service.dart';
 
 class HomeDespesaPage extends StatefulWidget {
@@ -46,8 +47,10 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
       body: body(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => CadastroDespesaPage()));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CadastroDespesaPage(dataRef: data)));
         },
         tooltip: 'Add Despesa',
         child: const Icon(Icons.add),
@@ -57,7 +60,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
 
   body() {
     return Column(
-      children: [containerTop()],
+      children: [containerTop(), containerMenu()],
     );
   }
 
@@ -136,65 +139,88 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
     );
   }
 
-  contasPendentes() {}
-  contasPagas() {}
-
-  listaDespesas(Status status) {
+  containerMenu() {
     auth = Provider.of<UserService>(context);
-
-    return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('despesas')
-            .doc(auth!.usuario!.uid.toString())
-            .collection("${data.month}/${data.year}")
-            .snapshots(),
-        builder: (context, snapshots) {
-          return (snapshots.connectionState == ConnectionState.waiting)
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : ListView.builder(
-                  itemCount: snapshots.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    var data = snapshots.data!.docs[index].data()
-                        as Map<String, dynamic>;
-
-                    data["id"] = snapshots.data!.docs[index].id;
-                    var despesa = Despesa().toEntity(data);
-
-                    if (despesa.status == status) {
-                      return item(despesa);
-                    }
-                    return Container();
-                  });
-        });
+    return Container(
+        width: MediaQuery.of(context).size.width * 0.95,
+        height: MediaQuery.of(context).size.height * 0.53,
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.all(10),
+        decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(25.0))),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Contas",
+              style: TextStyle(fontSize: 20),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4,
+              child: itemHistorico(),
+            )
+          ],
+        ));
   }
 
-  item(Despesa item) {
-    return SizedBox(
-        height: 100,
-        child: Card(
-            margin: const EdgeInsets.only(bottom: 20),
-            child: ListTile(
-              onTap: () => null,
-              title: Text(
-                item.descricao,
-                overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                FormatarMoeda.formatar(item.valor),
-                overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              leading: Container(
-                  width: 70,
-                  height: 70,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: const BoxDecoration(shape: BoxShape.circle),
-                  child: Icon(Icons.favorite)),
-            )));
+  itemHistorico() {
+    Stream<QuerySnapshot> _participanteStream = FirebaseFirestore.instance
+        .collection('despesas')
+        .doc(auth!.usuario!.uid.toString())
+        .collection("${data.month}${data.year}")
+        //.orderBy('DataCadastro', descending: true)
+        .snapshots();
+
+    return StreamBuilder<QuerySnapshot>(
+        stream: _participanteStream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return const Text('Erro!');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Text("Carregando");
+          }
+
+          return ListView(
+            shrinkWrap: true,
+            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+              Map<String, dynamic> data =
+                  document.data()! as Map<String, dynamic>;
+              data["Id"] = document.id;
+              var despesa = Operacao().toEntity(data);
+
+              return Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: const EdgeInsets.only(bottom: 5, top: 5),
+                  child: Card(
+                      child: ListTile(
+                          trailing: Text(
+                            FormatarMoeda.formatar(despesa.valor),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: despesa.valor > 0
+                                    ? Colors.green
+                                    : Colors.red),
+                          ),
+                          /* leading: Container(
+                              width: 50,
+                              height: 50,
+                              clipBehavior: Clip.antiAlias,
+                              decoration:
+                                  const BoxDecoration(shape: BoxShape.circle),
+                              child: operacao.photoContribuinte == ""
+                                  ? Image.asset("imagens/logo_sem_nome.png",
+                                      fit: BoxFit.cover)
+                                  : Image.network(
+                                      operacao.photoContribuinte as String,
+                                      fit: BoxFit.cover)),*/
+                          subtitle: Text(
+                              DateUltils.formatarData(despesa.dataCadastro)),
+                          title: Text(despesa.descricao.toString(),
+                              textAlign: TextAlign.start))));
+            }).toList(),
+          );
+        });
   }
 }
