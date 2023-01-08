@@ -22,6 +22,16 @@ class DespesaService extends ChangeNotifier {
     }
   }
 
+  salvarComParcelas(Operacao operacao) async {
+    DateTime data = operacao.dataReferencia ?? DateTime.now();
+    for (int i = 1; i <= operacao.totalParcelas; i++) {
+      operacao.parcelasPagas = i;
+      await salvar(operacao);
+      data = DateTime(data.year, data.month + 1, data.day);
+      operacao.dataReferencia = data;
+    }
+  }
+
   atualizar(Operacao item) async {
     if (auth.currentUser != null) {
       await despesas

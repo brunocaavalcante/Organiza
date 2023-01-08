@@ -24,7 +24,10 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
   final formKey = GlobalKey<FormState>();
   final descricao = TextEditingController();
   final valor = TextEditingController();
+  final qtdParcelas = TextEditingController();
+  TipoFrequencia? frequencia = TipoFrequencia.Nunca;
   int operacao = 1;
+  bool isRepetir = false;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +64,20 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
                 customRadioButton(
                     "Recibo", 2, Icons.attach_money_outlined, Colors.green)
               ]),
+              Row(children: [
+                const Text("Repetir ?", style: TextStyle(fontSize: 15)),
+                Switch(
+                    value: isRepetir,
+                    onChanged: (value) {
+                      setState(() {
+                        isRepetir = value;
+                        if (isRepetir == false) {
+                          frequencia = TipoFrequencia.Nunca;
+                        }
+                      });
+                    })
+              ]),
+              containerRepetir(),
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
@@ -87,8 +104,12 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
 
   cadastrar() async {
     try {
+      var parcelas = int.tryParse(qtdParcelas.text) ?? 0;
       Operacao item = Operacao();
-      item.dataCadastro = DateTime.now();
+      item.repetir = isRepetir;
+      item.totalParcelas = parcelas;
+      item.tipoFrequencia = frequencia!.index;
+      item.dataCadastro = item.dataCadastro = DateTime.now();
       item.dataReferencia = widget.dataRef;
       item.descricao = descricao.text;
       item.categoria = CategoriaDepesa();
@@ -97,7 +118,13 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
       item.valor = Ultil().CoverterValorToDecimal(valor.text)!;
       item.status = Status.Pendente.index;
       item.tipoOperacao = operacao;
-      await Provider.of<DespesaService>(context, listen: false).salvar(item);
+      if (item.totalParcelas > 0) {
+        item.valor = item.valor / parcelas;
+        await Provider.of<DespesaService>(context, listen: false)
+            .salvarComParcelas(item);
+      } else {
+        await Provider.of<DespesaService>(context, listen: false).salvar(item);
+      }
       Navigator.pop(context);
     } on CustomException catch (e) {
       ScaffoldMessenger.of(context)
@@ -123,5 +150,44 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
                 color: (operacao == index
                     ? color
                     : Theme.of(context).hintColor))));
+  }
+
+  containerRepetir() {
+    if (isRepetir) {
+      return Column(children: [
+        Row(children: [
+          Radio(
+              value: TipoFrequencia.Sempre,
+              groupValue: frequencia,
+              onChanged: (TipoFrequencia? value) {
+                setState(() {
+                  frequencia = value;
+                });
+              }),
+          Text(TipoFrequencia.Sempre.name),
+          Radio(
+              value: TipoFrequencia.Parcelado,
+              groupValue: frequencia,
+              onChanged: (TipoFrequencia? value) {
+                setState(() {
+                  frequencia = value;
+                });
+              }),
+          Text(TipoFrequencia.Parcelado.name)
+        ]),
+        fieldQtdParcelas()
+      ]);
+    } else {
+      return Container();
+    }
+  }
+
+  Widget fieldQtdParcelas() {
+    if (frequencia == TipoFrequencia.Parcelado) {
+      return WidgetUltil.returnField("Quantidade de parcelas: ", qtdParcelas,
+          TextInputType.number, null, "");
+    } else {
+      return Container();
+    }
   }
 }

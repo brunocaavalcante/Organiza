@@ -8,10 +8,11 @@ class Operacao {
   CategoriaDepesa? categoria;
   int? status;
   int? tipoOperacao;
+  int? tipoFrequencia;
   DateTime? dataCadastro;
   DateTime? dataReferencia;
-  int? totalParcelas = 0;
-  int? parcelasPagas = 0;
+  int totalParcelas = 0;
+  int parcelasPagas = 0;
   bool? repetir = false;
 
   Map<String, Object?> toJson() {
@@ -25,13 +26,15 @@ class Operacao {
       'parcelasPagas': parcelasPagas,
       'totalParcelas': totalParcelas,
       'repetir': repetir,
-      'tipoOperacao': tipoOperacao
+      'tipoOperacao': tipoOperacao,
+      'tipoFrequencia': tipoFrequencia
     };
   }
 
   Operacao toEntity(Map<String, dynamic> map) {
-    parcelasPagas = map['parcelasPagas'];
-    totalParcelas = map['totalParcelas'];
+    parcelasPagas = map['parcelasPagas'] ?? 0;
+    totalParcelas = map['totalParcelas'] ?? 0;
+    tipoFrequencia = map['tipoFrequencia'];
     repetir = map['repetir'];
     tipoOperacao = map['tipoOperacao'];
     status = map['status'];
@@ -49,3 +52,5 @@ class Operacao {
 enum Status { Pago, Pendente }
 
 enum TipoOperacao { Despesa, Recibo }
+
+enum TipoFrequencia { Nunca, Sempre, Parcelado }
