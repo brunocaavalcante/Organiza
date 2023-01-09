@@ -19,6 +19,9 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   var height;
   var width;
   Color? colorOnPrimary;
+  double totalPago = 0;
+  double totalPagar = 0;
+  double total = 0;
   UserService? auth;
   late DateTime data = DateTime.now();
   List mes = [
@@ -42,6 +45,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
     colorOnPrimary = Theme.of(context).colorScheme.onPrimary;
+    auth = Provider.of<UserService>(context);
 
     return Scaffold(
       body: body(),
@@ -65,82 +69,120 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   }
 
   containerTop() {
-    return Container(
-      width: width,
-      height: height * 0.33,
-      padding: EdgeInsets.only(top: height * 0.05),
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(60.0),
-            bottomRight: Radius.circular(60.0),
-          )),
-      child: Column(children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-                onPressed: () {
-                  setState(() {
-                    data = new DateTime(data.year, data.month - 1, data.day);
-                  });
-                },
-                icon: Icon(Icons.arrow_back_ios, color: colorOnPrimary)),
-            const SizedBox(width: 15),
-            Text("${mes[data.month]} ${data.year}",
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('despesas')
+          .doc(auth!.usuario!.uid.toString())
+          .collection("${data.month}${data.year}")
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Algo deu errado.');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        totalPagar = 0;
+        totalPago = 0;
+        total = 0;
+        for (var element in snapshot.data!.docs) {
+          Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
+          data["Id"] = element.id;
+          var operacao = Operacao().toEntity(data);
+          atualizaTotalizadores(operacao);
+        }
+        return Container(
+          width: width,
+          height: height * 0.33,
+          padding: EdgeInsets.only(top: height * 0.05),
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(60.0),
+                bottomRight: Radius.circular(60.0),
+              )),
+          child: Column(children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                    onPressed: () {
+                      setState(() {
+                        data = DateTime(data.year, data.month - 1, data.day);
+                      });
+                    },
+                    icon: Icon(Icons.arrow_back_ios, color: colorOnPrimary)),
+                const SizedBox(width: 15),
+                Text("${mes[data.month]} ${data.year}",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(width: 15),
+                IconButton(
+                    onPressed: () {
+                      setState(() {
+                        data = DateTime(data.year, data.month + 1, data.day);
+                      });
+                    },
+                    icon: Icon(Icons.arrow_forward_ios, color: colorOnPrimary))
+              ],
+            ),
+            SizedBox(height: height * 0.03),
+            Text("Total do mês",
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 18,
+                    fontSize: 16)),
+            SizedBox(height: height * 0.01),
+            Text("${FormatarMoeda.formatar(total)}",
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 23,
                     fontWeight: FontWeight.bold)),
-            const SizedBox(width: 15),
-            IconButton(
-                onPressed: () {
-                  setState(() {
-                    data = new DateTime(data.year, data.month + 1, data.day);
-                  });
-                },
-                icon: Icon(Icons.arrow_forward_ios, color: colorOnPrimary))
-          ],
-        ),
-        SizedBox(height: height * 0.03),
-        Text("Total do mês",
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary, fontSize: 16)),
-        SizedBox(height: height * 0.01),
-        Text("RS 2.083,34",
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontSize: 23,
-                fontWeight: FontWeight.bold)),
-        SizedBox(height: height * 0.02),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          Text("Pago",
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 16)),
-          Text("A pagar",
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 16)),
-        ]),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          Text("RS 100,00",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 16)),
-          Text("RS 50,00",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 16)),
-        ])
-      ]),
+            SizedBox(height: height * 0.02),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              Text("Pago",
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16)),
+              Text("A pagar",
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16)),
+            ]),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              Text("${FormatarMoeda.formatar(totalPago)}",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16)),
+              Text("${FormatarMoeda.formatar(totalPagar)}",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16)),
+            ])
+          ]),
+        );
+      },
     );
   }
 
+  atualizaTotalizadores(Operacao item) {
+    if (item.tipoOperacao == TipoOperacao.Despesa.index) {
+      totalPagar = totalPagar + item.valor;
+      total = total + item.valor;
+    }
+    if (item.tipoOperacao == TipoOperacao.Recibo.index) {
+      totalPago = totalPago + item.valor;
+      totalPagar = totalPagar - totalPago;
+    }
+  }
+
   containerMenu() {
-    auth = Provider.of<UserService>(context);
     return Container(
         width: MediaQuery.of(context).size.width * 0.95,
         height: MediaQuery.of(context).size.height * 0.53,
@@ -188,20 +230,33 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
               Map<String, dynamic> data =
                   document.data()! as Map<String, dynamic>;
               data["Id"] = document.id;
-              var despesa = Operacao().toEntity(data);
-
+              var operacao = Operacao().toEntity(data);
               return Container(
                   width: MediaQuery.of(context).size.width,
                   margin: const EdgeInsets.only(bottom: 5, top: 5),
                   child: Card(
                       child: ListTile(
-                          trailing: Text(
-                            FormatarMoeda.formatar(despesa.valor),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: despesa.valor > 0
-                                    ? Colors.green
-                                    : Colors.red),
+                          trailing: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              (operacao.totalParcelas > 0
+                                  ? Text(
+                                      "${operacao.parcelasPagas}/${operacao.totalParcelas}",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  : const Text("")),
+                              Text(
+                                FormatarMoeda.formatar(operacao.valor),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: operacao.tipoOperacao ==
+                                            TipoOperacao.Recibo.index
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(context).colorScheme.error),
+                              )
+                            ],
                           ),
                           /* leading: Container(
                               width: 50,
@@ -209,15 +264,10 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                               clipBehavior: Clip.antiAlias,
                               decoration:
                                   const BoxDecoration(shape: BoxShape.circle),
-                              child: operacao.photoContribuinte == ""
-                                  ? Image.asset("imagens/logo_sem_nome.png",
-                                      fit: BoxFit.cover)
-                                  : Image.network(
-                                      operacao.photoContribuinte as String,
-                                      fit: BoxFit.cover)),*/
+                              child: Icon(Icons.ac_unit_rounded)),*/
                           subtitle: Text(
-                              DateUltils.formatarData(despesa.dataCadastro)),
-                          title: Text(despesa.descricao.toString(),
+                              DateUltils.formatarData(operacao.dataCadastro)),
+                          title: Text(operacao.descricao.toString(),
                               textAlign: TextAlign.start))));
             }).toList(),
           );

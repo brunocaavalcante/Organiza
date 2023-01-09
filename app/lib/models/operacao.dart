@@ -51,6 +51,6 @@ class Operacao {
 
 enum Status { Pago, Pendente }
 
-enum TipoOperacao { Despesa, Recibo }
+enum TipoOperacao { Nenhum, Despesa, Recibo }
 
 enum TipoFrequencia { Nunca, Sempre, Parcelado }
