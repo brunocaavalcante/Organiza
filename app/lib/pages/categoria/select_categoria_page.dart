@@ -1,5 +1,9 @@
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:app/pages/categoria/cadastro_categoria_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
+import '../../core/widgets/widget_ultil.dart';
+import '../../models/categoria.dart';
 
 class SelectCategoriaPage extends StatefulWidget {
   const SelectCategoriaPage({super.key});
@@ -11,6 +15,89 @@ class SelectCategoriaPage extends StatefulWidget {
 class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+        appBar: WidgetUltil.barWithArrowBackIos(context, "Categorias"),
+        body: containerMenu(),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CadastroCategoriaPage()));
+            },
+            tooltip: 'Add Categoria',
+            child: const Icon(Icons.add)));
+  }
+
+  containerMenu() {
+    return Container(
+        width: MediaQuery.of(context).size.width * 0.95,
+        height: MediaQuery.of(context).size.height * 0.55,
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.all(10),
+        decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(25.0))),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.49,
+            child: itemHistorico(),
+          )
+        ]));
+  }
+
+  itemHistorico() {
+    print("color - ${Colors.blue.value}");
+    print("carro - ${Icons.car_crash.codePoint}");
+    Stream<QuerySnapshot> _participanteStream = FirebaseFirestore.instance
+        .collection('categorias')
+        .orderBy('descricao')
+        .snapshots();
+
+    return StreamBuilder<QuerySnapshot>(
+        stream: _participanteStream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return const Text('Erro!');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Text("Carregando");
+          }
+
+          return ListView(
+            shrinkWrap: true,
+            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+              Map<String, dynamic> data =
+                  document.data()! as Map<String, dynamic>;
+
+              var item = Categoria().toEntity(data);
+              return SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Card(
+                      shadowColor: Theme.of(context).colorScheme.primary,
+                      elevation: 5,
+                      surfaceTintColor:
+                          Theme.of(context).colorScheme.background,
+                      child: ListTile(
+                          contentPadding: const EdgeInsets.all(10),
+                          leading: Container(
+                              width: 50,
+                              height: 50,
+                              clipBehavior: Clip.antiAlias,
+                              decoration:
+                                  const BoxDecoration(shape: BoxShape.circle),
+                              child: Icon(
+                                IconData(item.id ?? 984979,
+                                    fontFamily:
+                                        item.fontFamily ?? "MaterialIcons"),
+                                size: 35,
+                                color: Color(item.color),
+                              )),
+                          title: Text(item.descricao.toString(),
+                              textAlign: TextAlign.start,
+                              style: const TextStyle(fontSize: 20)))));
+            }).toList(),
+          );
+        });
   }
 }

@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../core/masks.dart';
 import '../../core/widgets/widget_ultil.dart';
 import '../../models/custom_exception.dart';
+import '../categoria/select_categoria_page.dart';
 
 class CadastroDespesaPage extends StatefulWidget {
   DateTime? dataRef;
@@ -45,9 +46,6 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
                   "Descrição: ", descricao, TextInputType.text, null, ""),
               const SizedBox(height: 10),
               WidgetUltil.returnField(
-                  "Categoria: ", descricao, TextInputType.text, null, ""),
-              const SizedBox(height: 10),
-              WidgetUltil.returnField(
                   "Valor: ",
                   valor,
                   TextInputType.number,
@@ -57,6 +55,25 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
                   ],
                   "R\$ 0,00"),
               const SizedBox(height: 10),
+              ListTile(
+                  onTap: () => {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SelectCategoriaPage()))
+                      },
+                  contentPadding: const EdgeInsets.only(
+                      top: 5, bottom: 5, left: 15, right: 10),
+                  title: Text("Categoria",
+                      style: TextStyle(color: Theme.of(context).hintColor)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(05.0)),
+                      side: BorderSide(color: Theme.of(context).hintColor)),
+                  tileColor: Theme.of(context).colorScheme.background,
+                  trailing: Icon(Icons.arrow_forward_ios_sharp,
+                      color: Theme.of(context).hintColor)),
+              const SizedBox(height: 15),
               Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                 customRadioButton(
                     "Despesa", 1, Icons.money_off_csred_rounded, Colors.red),
@@ -112,9 +129,9 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
       item.dataCadastro = item.dataCadastro = DateTime.now();
       item.dataReferencia = widget.dataRef;
       item.descricao = descricao.text;
-      item.categoria = CategoriaDepesa();
+      item.categoria = Categoria();
       item.categoria!.descricao = "Casa";
-      item.categoria!.id = "1";
+      item.categoria!.id = 1;
       item.valor = Ultil().CoverterValorToDecimal(valor.text)!;
       item.status = Status.Pendente.index;
       item.tipoOperacao = operacao;

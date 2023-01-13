@@ -54,7 +54,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
-          colorSchemeSeed: Colors.green,
+          colorSchemeSeed: Colors.blueAccent,
           brightness: tema,
         ),
         home: const AuthCheck(),

@@ -5,7 +5,7 @@ class Operacao {
   String id = "";
   String descricao = "";
   double valor = 0;
-  CategoriaDepesa? categoria;
+  Categoria? categoria;
   int? status;
   int? tipoOperacao;
   int? tipoFrequencia;

@@ -132,7 +132,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
               ],
             ),
             SizedBox(height: height * 0.03),
-            Text("Total do mês",
+            Text("Balanço do Mês",
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 16)),
@@ -144,11 +144,11 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                     fontWeight: FontWeight.bold)),
             SizedBox(height: height * 0.02),
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              Text("Pago",
+              Text("Receitas",
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16)),
-              Text("A pagar",
+              Text("Despesas",
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16)),
@@ -174,18 +174,17 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   atualizaTotalizadores(Operacao item) {
     if (item.tipoOperacao == TipoOperacao.Despesa.index) {
       totalPagar = totalPagar + item.valor;
-      total = total + item.valor;
     }
     if (item.tipoOperacao == TipoOperacao.Recibo.index) {
       totalPago = totalPago + item.valor;
-      totalPagar = totalPagar - totalPago;
     }
+    total = totalPago - totalPagar;
   }
 
   containerMenu() {
     return Container(
         width: MediaQuery.of(context).size.width * 0.95,
-        height: MediaQuery.of(context).size.height * 0.53,
+        height: MediaQuery.of(context).size.height * 0.55,
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.all(10),
         decoration: const BoxDecoration(
@@ -198,7 +197,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
               style: TextStyle(fontSize: 20),
             ),
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.4,
+              height: MediaQuery.of(context).size.height * 0.49,
               child: itemHistorico(),
             )
           ],
