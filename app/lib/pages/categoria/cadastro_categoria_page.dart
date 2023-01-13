@@ -1,7 +1,11 @@
+import 'package:app/models/categoria.dart';
 import 'package:app/pages/categoria/select_color_page.dart';
 import 'package:app/pages/categoria/select_icon_page.dart';
+import 'package:app/services/categoria_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/widgets/widget_ultil.dart';
+import '../../models/custom_exception.dart';
 
 class CadastroCategoriaPage extends StatefulWidget {
   const CadastroCategoriaPage({super.key});
@@ -14,7 +18,7 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
   final formKey = GlobalKey<FormState>();
   final descricao = TextEditingController();
   IconData icon = Icons.home;
-  Color? color = Colors.amber;
+  Color color = Colors.amber;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +42,7 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
   }
 
   containerIcon() {
+    double altura = MediaQuery.of(context).size.height * 0.1;
     return Column(children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
         Text("Cor", style: TextStyle(fontSize: 30)),
@@ -76,7 +81,7 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
               })
         ],
       ),
-      const SizedBox(height: 40),
+      SizedBox(height: altura),
       SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Card(
@@ -97,7 +102,38 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
                       )),
                   title: Text(descricao.text,
                       textAlign: TextAlign.start,
-                      style: const TextStyle(fontSize: 30)))))
+                      style: const TextStyle(fontSize: 30))))),
+      SizedBox(height: altura),
+      ElevatedButton(
+        onPressed: () async {
+          if (formKey.currentState!.validate()) {
+            await salvar();
+          }
+        },
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          Icon(Icons.save),
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text("Salvar", style: TextStyle(fontSize: 20)),
+          ),
+        ]),
+      ),
     ]);
+  }
+
+  salvar() async {
+    try {
+      Categoria item = Categoria();
+      item.color = color.value;
+      item.descricao = descricao.text;
+      item.fontFamily = "MaterialIcons";
+      item.id = icon.codePoint;
+      await Provider.of<CategoriaService>(context, listen: false).salvar(item);
+      Navigator.pop(context);
+    } on CustomException catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 }

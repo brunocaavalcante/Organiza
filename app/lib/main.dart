@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/widgets/auth_check.dart';
+import 'services/categoria_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +15,8 @@ void main() async {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => UserService()),
     ChangeNotifierProvider(create: (context) => FileService()),
-    ChangeNotifierProvider(create: (context) => DespesaService())
+    ChangeNotifierProvider(create: (context) => DespesaService()),
+    ChangeNotifierProvider(create: (context) => CategoriaService())
   ], child: const App()));
 }
 

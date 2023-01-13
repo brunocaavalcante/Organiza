@@ -46,8 +46,6 @@ class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
   }
 
   itemHistorico() {
-    print("color - ${Colors.blue.value}");
-    print("carro - ${Icons.car_crash.codePoint}");
     Stream<QuerySnapshot> _participanteStream = FirebaseFirestore.instance
         .collection('categorias')
         .orderBy('descricao')
