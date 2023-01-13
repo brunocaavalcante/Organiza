@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:app/models/categoria.dart';
 import 'package:app/models/operacao.dart';
 import 'package:app/models/ultil.dart';
@@ -29,11 +27,15 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
   TipoFrequencia? frequencia = TipoFrequencia.Nunca;
   int operacao = 1;
   bool isRepetir = false;
+  Categoria? categoria;
+  bool exibir = false;
+  Widget customMsgErro = Container();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: WidgetUltil.barWithArrowBackIos(context, "Cadastro Despesa"),
+      appBar:
+          WidgetUltil.barWithArrowBackIos(context, "Cadastro Despesa", true),
       body: SingleChildScrollView(
           child: Padding(
         padding: const EdgeInsets.all(10),
@@ -56,16 +58,25 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
                   "R\$ 0,00"),
               const SizedBox(height: 10),
               ListTile(
-                  onTap: () => {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SelectCategoriaPage()))
-                      },
+                  onTap: () async {
+                    categoria = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SelectCategoriaPage()));
+                    setState(() {});
+                  },
                   contentPadding: const EdgeInsets.only(
                       top: 5, bottom: 5, left: 15, right: 10),
-                  title: Text("Categoria",
+                  title: Text(
+                      categoria != null ? categoria!.descricao : "Categoria",
                       style: TextStyle(color: Theme.of(context).hintColor)),
+                  leading: categoria != null
+                      ? Icon(
+                          IconData(categoria!.icon,
+                              fontFamily: categoria!.fontFamily),
+                          color: Color(categoria!.color),
+                          size: 30)
+                      : null,
                   shape: RoundedRectangleBorder(
                       borderRadius:
                           const BorderRadius.all(Radius.circular(05.0)),
@@ -73,6 +84,7 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
                   tileColor: Theme.of(context).colorScheme.background,
                   trailing: Icon(Icons.arrow_forward_ios_sharp,
                       color: Theme.of(context).hintColor)),
+              (exibir == true ? customMsgErro : Container()),
               const SizedBox(height: 15),
               Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                 customRadioButton(
@@ -99,7 +111,15 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
               ElevatedButton(
                 onPressed: () {
                   if (formKey.currentState!.validate()) {
-                    cadastrar();
+                    if (categoria == null) {
+                      customMsgErro = WidgetUltil.returnTextErro(
+                          "Selecione a categoria!",
+                          Theme.of(context).errorColor);
+                      exibir = customMsgErro != null ? true : false;
+                    } else {
+                      customMsgErro = Container();
+                      cadastrar();
+                    }
                   }
                 },
                 child: Row(
@@ -129,9 +149,7 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
       item.dataCadastro = item.dataCadastro = DateTime.now();
       item.dataReferencia = widget.dataRef;
       item.descricao = descricao.text;
-      item.categoria = Categoria();
-      item.categoria!.descricao = "Casa";
-      item.categoria!.id = 1;
+      item.categoria = categoria ?? Categoria();
       item.valor = Ultil().CoverterValorToDecimal(valor.text)!;
       item.status = Status.Pendente.index;
       item.tipoOperacao = operacao;

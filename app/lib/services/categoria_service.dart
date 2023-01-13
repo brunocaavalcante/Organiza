@@ -17,4 +17,11 @@ class CategoriaService extends ChangeNotifier {
               "ocorreu um erro ao cadastrar tente novamente"));
     }
   }
+
+  excluir(String id) async {
+    if (auth.currentUser != null) {
+      await categorias.doc(id).delete().catchError((error) =>
+          throw CustomException("ocorreu um erro ao excluir tente novamente"));
+    }
+  }
 }

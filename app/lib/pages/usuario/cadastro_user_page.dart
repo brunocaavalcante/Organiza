@@ -44,7 +44,7 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
     double? espaco = 10;
 
     return Scaffold(
-      appBar: WidgetUltil.barWithArrowBackIos(context, widget.operacao),
+      appBar: WidgetUltil.barWithArrowBackIos(context, widget.operacao, true),
       body: SingleChildScrollView(
           child: Padding(
         padding: const EdgeInsets.all(10),

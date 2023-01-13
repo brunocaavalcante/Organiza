@@ -23,7 +23,8 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: WidgetUltil.barWithArrowBackIos(context, "Cadastro Categoria"),
+        appBar: WidgetUltil.barWithArrowBackIos(
+            context, "Cadastro Categoria", true),
         body: SingleChildScrollView(
             child: Container(
                 margin: EdgeInsets.only(
@@ -105,20 +106,19 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
                       style: const TextStyle(fontSize: 30))))),
       SizedBox(height: altura),
       ElevatedButton(
-        onPressed: () async {
-          if (formKey.currentState!.validate()) {
-            await salvar();
-          }
-        },
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-          Icon(Icons.save),
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text("Salvar", style: TextStyle(fontSize: 20)),
-          ),
-        ]),
-      ),
+          onPressed: () async {
+            if (formKey.currentState!.validate()) {
+              await salvar();
+            }
+          },
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+            Icon(Icons.save),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text("Salvar", style: TextStyle(fontSize: 20)),
+            )
+          ])),
     ]);
   }
 
@@ -128,7 +128,7 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
       item.color = color.value;
       item.descricao = descricao.text;
       item.fontFamily = "MaterialIcons";
-      item.id = icon.codePoint;
+      item.icon = icon.codePoint;
       await Provider.of<CategoriaService>(context, listen: false).salvar(item);
       Navigator.pop(context);
     } on CustomException catch (e) {
