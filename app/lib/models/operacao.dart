@@ -13,7 +13,7 @@ class Operacao {
   DateTime? dataReferencia;
   int totalParcelas = 0;
   int parcelasPagas = 0;
-  bool? repetir = false;
+  bool repetir = false;
 
   Map<String, Object?> toJson() {
     return {
@@ -27,7 +27,8 @@ class Operacao {
       'totalParcelas': totalParcelas,
       'repetir': repetir,
       'tipoOperacao': tipoOperacao,
-      'tipoFrequencia': tipoFrequencia
+      'tipoFrequencia': tipoFrequencia,
+      'categoria': categoria!.toJson()
     };
   }
 
@@ -45,6 +46,7 @@ class Operacao {
         DateUltils.onlyDate(map['dataReferencia'].toDate() as DateTime);
     id = map['id'];
     valor = map['valor'];
+    categoria = Categoria().toEntity(map['categoria']);
     return this;
   }
 }

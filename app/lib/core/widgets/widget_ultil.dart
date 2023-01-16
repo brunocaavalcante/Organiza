@@ -31,31 +31,76 @@ class WidgetUltil {
   }
 
   static Widget returnTextErro(msg, Color cor) {
-    return Text(msg, style: TextStyle(color: cor, fontSize: 10));
+    return Container(
+      margin: const EdgeInsets.only(left: 12, top: 5),
+      child: Text(msg, style: TextStyle(color: cor, fontSize: 12)),
+    );
   }
 
   static Widget returnDimissibleExcluir(
       Widget filho, Function(DismissDirection)? onDismissed) {
     return Container(
-        margin: const EdgeInsets.only(bottom: 10, top: 10),
+        margin: const EdgeInsets.only(top: 3),
         child: Dismissible(
-          key: UniqueKey(),
-          direction: DismissDirection.endToStart,
-          onDismissed: onDismissed,
-          background: Container(
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                  color: Colors.red),
-              margin: const EdgeInsets.symmetric(horizontal: 15),
-              alignment: Alignment.centerRight,
-              child: Container(
-                  margin: const EdgeInsets.only(right: 20),
-                  child: const Text("Excluir",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold)))),
-          child: filho,
-        ));
+            key: UniqueKey(),
+            direction: DismissDirection.endToStart,
+            onDismissed: onDismissed,
+            background: Container(
+                decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    color: Colors.red),
+                margin: const EdgeInsets.symmetric(horizontal: 15),
+                alignment: Alignment.centerRight,
+                child: Container(
+                    margin: const EdgeInsets.only(right: 20),
+                    child: const Text("Excluir",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold)))),
+            child: filho));
+  }
+
+  static Widget returnButtonSalvar(Function()? onPressed) {
+    return ElevatedButton(
+        onPressed: onPressed,
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          Icon(Icons.save),
+          Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text("Salvar", style: TextStyle(fontSize: 20)))
+        ]));
+  }
+
+  static Widget returnButtonEditar(Function()? onPressed) {
+    return ElevatedButton(
+        onPressed: onPressed,
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          Icon(Icons.edit),
+          Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text("Editar", style: TextStyle(fontSize: 20)))
+        ]));
+  }
+
+  static Widget returnButtonExcluir(Function()? onPressed) {
+    return ElevatedButton(
+        onPressed: onPressed,
+        style: ButtonStyle(
+            backgroundColor:
+                MaterialStatePropertyAll<Color>(Colors.red.withOpacity(0.5))),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(
+            Icons.delete_forever,
+            color: Colors.white.withOpacity(0.8),
+          ),
+          Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text("Excluir",
+                  style: TextStyle(
+                      fontSize: 20, color: Colors.white.withOpacity(0.8))))
+        ]));
   }
 }

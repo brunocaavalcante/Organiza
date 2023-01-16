@@ -105,21 +105,16 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
                       textAlign: TextAlign.start,
                       style: const TextStyle(fontSize: 30))))),
       SizedBox(height: altura),
-      ElevatedButton(
-          onPressed: () async {
-            if (formKey.currentState!.validate()) {
-              await salvar();
-            }
-          },
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-            Icon(Icons.save),
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text("Salvar", style: TextStyle(fontSize: 20)),
-            )
-          ])),
+      WidgetUltil.returnButtonSalvar(onPressedSalvar())
     ]);
+  }
+
+  Function()? onPressedSalvar() {
+    return (() async {
+      if (formKey.currentState!.validate()) {
+        await salvar();
+      }
+    });
   }
 
   salvar() async {

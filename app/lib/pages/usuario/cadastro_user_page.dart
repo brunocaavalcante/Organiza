@@ -77,27 +77,20 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
               SizedBox(height: espaco),
               fieldConfirmSenha(),
               SizedBox(height: espaco),
-              ElevatedButton(
-                onPressed: () {
-                  if (formKey.currentState!.validate()) {
-                    registrar();
-                  }
-                },
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.save),
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text("Salvar", style: TextStyle(fontSize: 20)),
-                      ),
-                    ]),
-              ),
+              WidgetUltil.returnButtonSalvar(onPressedSalvar())
             ],
           ),
         ),
       )),
     );
+  }
+
+  onPressedSalvar() {
+    return (() async {
+      if (formKey.currentState!.validate()) {
+        await registrar();
+      }
+    });
   }
 
   registrar() async {

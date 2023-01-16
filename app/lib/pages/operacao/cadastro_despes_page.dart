@@ -11,15 +11,15 @@ import '../../core/widgets/widget_ultil.dart';
 import '../../models/custom_exception.dart';
 import '../categoria/select_categoria_page.dart';
 
-class CadastroDespesaPage extends StatefulWidget {
+class CadastroOperacaoPage extends StatefulWidget {
   DateTime? dataRef;
-  CadastroDespesaPage({super.key, required this.dataRef});
+  CadastroOperacaoPage({super.key, required this.dataRef});
 
   @override
-  State<CadastroDespesaPage> createState() => _CadastroDespesaPageState();
+  State<CadastroOperacaoPage> createState() => _CadastroOperacaoPageState();
 }
 
-class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
+class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   final formKey = GlobalKey<FormState>();
   final descricao = TextEditingController();
   final valor = TextEditingController();
@@ -57,33 +57,7 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
                   ],
                   "R\$ 0,00"),
               const SizedBox(height: 10),
-              ListTile(
-                  onTap: () async {
-                    categoria = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SelectCategoriaPage()));
-                    setState(() {});
-                  },
-                  contentPadding: const EdgeInsets.only(
-                      top: 5, bottom: 5, left: 15, right: 10),
-                  title: Text(
-                      categoria != null ? categoria!.descricao : "Categoria",
-                      style: TextStyle(color: Theme.of(context).hintColor)),
-                  leading: categoria != null
-                      ? Icon(
-                          IconData(categoria!.icon,
-                              fontFamily: categoria!.fontFamily),
-                          color: Color(categoria!.color),
-                          size: 30)
-                      : null,
-                  shape: RoundedRectangleBorder(
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(05.0)),
-                      side: BorderSide(color: Theme.of(context).hintColor)),
-                  tileColor: Theme.of(context).colorScheme.background,
-                  trailing: Icon(Icons.arrow_forward_ios_sharp,
-                      color: Theme.of(context).hintColor)),
+              fieldCategoria(),
               (exibir == true ? customMsgErro : Container()),
               const SizedBox(height: 15),
               Row(mainAxisAlignment: MainAxisAlignment.start, children: [
@@ -108,35 +82,35 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
               ]),
               containerRepetir(),
               const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {
-                  if (formKey.currentState!.validate()) {
-                    if (categoria == null) {
-                      customMsgErro = WidgetUltil.returnTextErro(
-                          "Selecione a categoria!",
-                          Theme.of(context).errorColor);
-                      exibir = customMsgErro != null ? true : false;
-                    } else {
-                      customMsgErro = Container();
-                      cadastrar();
-                    }
-                  }
-                },
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.save),
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text("Salvar", style: TextStyle(fontSize: 20)),
-                      ),
-                    ]),
-              ),
+              WidgetUltil.returnButtonSalvar(onPressedSalvar())
             ],
           ),
         ),
       )),
     );
+  }
+
+  onPressedSalvar() {
+    return (() async {
+      if (validarForm()) {
+        await cadastrar();
+      }
+      setState(() {});
+    });
+  }
+
+  bool validarForm() {
+    if (categoria == null) {
+      customMsgErro = WidgetUltil.returnTextErro(
+          "Selecione a categoria!", Theme.of(context).errorColor);
+      exibir = true;
+      formKey.currentState!.validate();
+      return false;
+    } else {
+      exibir = false;
+      customMsgErro = Container();
+      return (true && formKey.currentState!.validate());
+    }
   }
 
   cadastrar() async {
@@ -224,5 +198,35 @@ class _CadastroDespesaPageState extends State<CadastroDespesaPage> {
     } else {
       return Container();
     }
+  }
+
+  Widget fieldCategoria() {
+    return ListTile(
+        onTap: () async {
+          categoria = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const SelectCategoriaPage()));
+          setState(() {
+            validarForm();
+          });
+        },
+        contentPadding:
+            const EdgeInsets.only(top: 5, bottom: 5, left: 15, right: 10),
+        title: Text(categoria != null ? categoria!.descricao : "Categoria",
+            style: TextStyle(color: Theme.of(context).hintColor)),
+        leading: categoria != null
+            ? Icon(IconData(categoria!.icon, fontFamily: categoria!.fontFamily),
+                color: Color(categoria!.color), size: 30)
+            : null,
+        shape: RoundedRectangleBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(05.0)),
+            side: BorderSide(
+                color: (exibir
+                    ? Theme.of(context).errorColor
+                    : Theme.of(context).hintColor))),
+        tileColor: Theme.of(context).colorScheme.background,
+        trailing: Icon(Icons.arrow_forward_ios_sharp,
+            color: Theme.of(context).hintColor));
   }
 }

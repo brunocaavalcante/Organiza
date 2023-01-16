@@ -36,7 +36,7 @@ class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
     return Container(
         width: MediaQuery.of(context).size.width * 0.95,
         height: MediaQuery.of(context).size.height * 0.85,
-        margin: const EdgeInsets.only(top: 10, left: 10),
+        margin: const EdgeInsets.only(left: 10),
         padding: const EdgeInsets.all(10),
         decoration: const BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(25.0))),
