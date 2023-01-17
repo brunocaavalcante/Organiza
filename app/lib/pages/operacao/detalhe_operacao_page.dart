@@ -1,9 +1,13 @@
+import 'package:app/services/alert_service.dart';
 import 'package:app/core/widgets/widget_ultil.dart';
 import 'package:app/models/operacao.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/date_ultils.dart';
 import '../../core/masks.dart';
+import '../../models/custom_exception.dart';
+import '../../services/operacao_service.dart';
 
 class DetalheOperacaoPage extends StatefulWidget {
   Operacao operacao;
@@ -14,6 +18,7 @@ class DetalheOperacaoPage extends StatefulWidget {
 }
 
 class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
+  var valueSelected = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,7 +101,59 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
 
   btnExcluir() {
     return SizedBox(
-        width: 150, child: WidgetUltil.returnButtonExcluir(() => null));
+        width: 150,
+        child: WidgetUltil.returnButtonExcluir(() async {
+          await excluirItem(widget.operacao);
+        }));
+  }
+
+  excluirItem(Operacao item) async {
+    try {
+      if (item.repetir ?? false) {
+        AlertService.alertRadios(
+            context,
+            "Alerta",
+            "Identificamos que essa operação repete nos meses futuros selecione uma das opções abaixo:",
+            ["Excluir somente essa", "Excluir essa e as futuras"],
+            item,
+            onPressExcluirOk(item));
+      } else {
+        await Provider.of<OperacaoService>(context, listen: false)
+            .excluir(item);
+        Navigator.pop(context);
+      }
+      setState(() {});
+    } on CustomException catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  Function()? onPressExcluirOk(item) {
+    try {
+      return (() async {
+        if (AlertService.opSelecionada == 0) {
+          await Provider.of<OperacaoService>(context, listen: false)
+              .excluir(item);
+        }
+        if (AlertService.opSelecionada == 1) {
+          var listaExcluir =
+              await Provider.of<OperacaoService>(context, listen: false)
+                  .buscarTodasOperacoesPorOperacao(item);
+
+          for (var item in listaExcluir) {
+            await Provider.of<OperacaoService>(context, listen: false)
+                .excluir(item);
+          }
+        }
+        Navigator.pop(context);
+        Navigator.pop(context);
+      });
+    } on CustomException catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+      return null;
+    }
   }
 
   btnEditar() {

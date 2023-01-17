@@ -8,7 +8,7 @@ import '../../core/date_ultils.dart';
 import '../../core/masks.dart';
 import '../../models/custom_exception.dart';
 import '../../models/operacao.dart';
-import '../../services/despesa_service.dart';
+import '../../services/operacao_service.dart';
 import '../../services/usuario_service.dart';
 import 'detalhe_operacao_page.dart';
 
@@ -76,7 +76,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   containerTop() {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('despesas')
+          .collection('operacoes')
           .doc(auth!.usuario!.uid.toString())
           .collection("${data.month}${data.year}")
           .snapshots(),
@@ -211,7 +211,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
 
   itemHistorico() {
     Stream<QuerySnapshot> _participanteStream = FirebaseFirestore.instance
-        .collection('despesas')
+        .collection('operacoes')
         .doc(auth!.usuario!.uid.toString())
         .collection("${data.month}${data.year}")
         //.orderBy('DataCadastro', descending: true)
@@ -237,8 +237,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
               operacao.id = document.id;
               return SizedBox(
                   width: MediaQuery.of(context).size.width,
-                  child: WidgetUltil.returnDimissibleExcluir(
-                      returnCardItem(operacao), dismissExcluirItem(operacao)));
+                  child: returnCardItem(operacao));
             }).toList(),
           );
         });
@@ -286,78 +285,5 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
             subtitle: Text(DateUltils.formatarData(operacao.dataCadastro)),
             title: Text(operacao.descricao.toString(),
                 textAlign: TextAlign.start)));
-  }
-
-  Function(DismissDirection)? dismissExcluirItem(Operacao item) {
-    return (_) async {
-      try {
-        if (item.repetir ?? false) {
-          alertRadios(context, "Alerta", "Selecione umdas opções abaixo:",
-              ["Excluir somente essa", "Excluir essa e as futuras"]);
-        } else {
-          await Provider.of<DespesaService>(context, listen: false)
-              .excluir(item);
-        }
-        setState(() {});
-      } on CustomException catch (e) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.message)));
-      }
-    };
-  }
-
-  alertRadios(BuildContext context, String title, String subtitle,
-      List<String> options) {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-            title: Text(title),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                    title: Text(options[0]),
-                    leading: Radio(
-                      value: 0,
-                      groupValue: valueSelected,
-                      onChanged: (int? value) {
-                        setState(() {
-                          valueSelected = value;
-                          print(valueSelected);
-                        });
-                      },
-                    )),
-                ListTile(
-                    title: Text(options[1]),
-                    leading: Radio(
-                      value: 1,
-                      groupValue: valueSelected,
-                      onChanged: (int? value) {
-                        setState(() {
-                          valueSelected = value;
-                          print(valueSelected);
-                        });
-                      },
-                    ))
-              ],
-            ),
-            actions: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: Icon(Icons.close, size: 18),
-                label: Text("Cancelar"),
-              ),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.check, size: 18),
-                label: Text("OK"),
-              )
-            ]);
-      },
-    );
   }
 }

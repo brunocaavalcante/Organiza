@@ -1,7 +1,7 @@
 import 'package:app/models/categoria.dart';
 import 'package:app/models/operacao.dart';
 import 'package:app/models/ultil.dart';
-import 'package:app/services/despesa_service.dart';
+import 'package:app/services/operacao_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -129,10 +129,10 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       item.tipoOperacao = operacao;
       if (item.totalParcelas > 0) {
         item.valor = item.valor / parcelas;
-        await Provider.of<DespesaService>(context, listen: false)
+        await Provider.of<OperacaoService>(context, listen: false)
             .salvarComParcelas(item);
       } else {
-        await Provider.of<DespesaService>(context, listen: false).salvar(item);
+        await Provider.of<OperacaoService>(context, listen: false).salvar(item);
       }
       Navigator.pop(context);
     } on CustomException catch (e) {

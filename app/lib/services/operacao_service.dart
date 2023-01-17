@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import '../models/custom_exception.dart';
 import '../models/operacao.dart';
 
-class DespesaService extends ChangeNotifier {
+class OperacaoService extends ChangeNotifier {
   FirebaseAuth auth = FirebaseAuth.instance;
-  CollectionReference despesas =
-      FirebaseFirestore.instance.collection('despesas');
+  CollectionReference operacao =
+      FirebaseFirestore.instance.collection('operacoes');
 
   salvar(Operacao item) async {
     if (auth.currentUser != null) {
-      await despesas
+      await operacao
           .doc(auth.currentUser!.uid.toString())
           .collection(
               "${item.dataReferencia!.month}${item.dataReferencia!.year}")
@@ -34,7 +34,7 @@ class DespesaService extends ChangeNotifier {
 
   atualizar(Operacao item) async {
     if (auth.currentUser != null) {
-      await despesas
+      await operacao
           .doc(auth.currentUser!.uid.toString())
           .collection(
               "${item.dataReferencia!.month}${item.dataReferencia!.year}")
@@ -47,7 +47,7 @@ class DespesaService extends ChangeNotifier {
 
   excluir(Operacao item) async {
     if (auth.currentUser != null) {
-      await despesas
+      await operacao
           .doc(auth.currentUser!.uid.toString())
           .collection(
               "${item.dataReferencia!.month}${item.dataReferencia!.year}")
@@ -56,5 +56,39 @@ class DespesaService extends ChangeNotifier {
           .catchError((error) => throw CustomException(
               "ocorreu um erro ao excluir tente novamente"));
     }
+  }
+
+  Future<List<Operacao>> buscarTodasOperacoesPorOperacao(Operacao op) async {
+    List<Operacao> list = [];
+    bool exiteItem = true;
+
+    if (auth.currentUser != null) {
+      while (exiteItem) {
+        await operacao
+            .doc(auth.currentUser!.uid.toString())
+            .collection("${op.dataReferencia!.month}${op.dataReferencia!.year}")
+            .where('descricao', isEqualTo: op.descricao)
+            .where('valor', isEqualTo: op.valor)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          if (querySnapshot.size > 0) {
+            for (var element in querySnapshot.docs) {
+              Map<String, dynamic> data =
+                  element.data()! as Map<String, dynamic>;
+
+              var operacao = Operacao().toEntity(data);
+              operacao.id = element.id;
+              list.add(operacao);
+
+              op.dataReferencia = DateTime(
+                  op.dataReferencia!.year, op.dataReferencia!.month + 1, 1);
+            }
+          } else {
+            exiteItem = false;
+          }
+        });
+      }
+    }
+    return list;
   }
 }

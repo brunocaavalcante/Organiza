@@ -1,4 +1,4 @@
-import 'package:app/services/despesa_service.dart';
+import 'package:app/services/operacao_service.dart';
 import 'package:app/services/file_service.dart';
 import 'package:app/services/usuario_service.dart';
 import 'package:app/theme/preferencia_tema.dart';
@@ -15,7 +15,7 @@ void main() async {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => UserService()),
     ChangeNotifierProvider(create: (context) => FileService()),
-    ChangeNotifierProvider(create: (context) => DespesaService()),
+    ChangeNotifierProvider(create: (context) => OperacaoService()),
     ChangeNotifierProvider(create: (context) => CategoriaService())
   ], child: const App()));
 }
