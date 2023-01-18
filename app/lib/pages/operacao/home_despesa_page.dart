@@ -189,7 +189,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   containerMenu() {
     return Container(
         width: MediaQuery.of(context).size.width * 0.95,
-        height: MediaQuery.of(context).size.height * 0.55,
+        height: MediaQuery.of(context).size.height * 0.54,
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.all(10),
         decoration: const BoxDecoration(
@@ -201,10 +201,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
               "Contas",
               style: TextStyle(fontSize: 20),
             ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.49,
-              child: itemHistorico(),
-            )
+            itemHistorico()
           ],
         ));
   }
@@ -282,7 +279,11 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                     IconData(operacao.categoria!.icon,
                         fontFamily: operacao.categoria!.fontFamily),
                     color: Color(operacao.categoria!.color))),
-            subtitle: Text(DateUltils.formatarData(operacao.dataCadastro)),
+            subtitle: Text(Status.values[operacao.status ?? 0].name,
+                style: TextStyle(
+                    color: operacao.status == Status.Pago.index
+                        ? Colors.green
+                        : Theme.of(context).errorColor)),
             title: Text(operacao.descricao.toString(),
                 textAlign: TextAlign.start)));
   }

@@ -13,6 +13,7 @@ class Operacao {
   DateTime? dataReferencia;
   int totalParcelas = 0;
   int parcelasPagas = 0;
+  int parcelaAtual = 0;
   bool repetir = false;
 
   Map<String, Object?> toJson() {
@@ -25,6 +26,7 @@ class Operacao {
       'valor': valor,
       'parcelasPagas': parcelasPagas,
       'totalParcelas': totalParcelas,
+      'parcelaAtual': parcelaAtual,
       'repetir': repetir,
       'tipoOperacao': tipoOperacao,
       'tipoFrequencia': tipoFrequencia,
@@ -35,6 +37,7 @@ class Operacao {
   Operacao toEntity(Map<String, dynamic> map) {
     parcelasPagas = map['parcelasPagas'] ?? 0;
     totalParcelas = map['totalParcelas'] ?? 0;
+    parcelaAtual = map['parcelaAtual'] ?? 0;
     tipoFrequencia = map['tipoFrequencia'];
     repetir = map['repetir'];
     tipoOperacao = map['tipoOperacao'];

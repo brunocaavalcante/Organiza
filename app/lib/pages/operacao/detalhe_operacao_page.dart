@@ -22,7 +22,11 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: WidgetUltil.barWithArrowBackIos(context, "Detalhes", null),
+        appBar: WidgetUltil.barWithArrowBackIos(context, "Detalhes", null, [
+          btnExcluirIcon(),
+          btnEditarIcon(),
+          SizedBox(width: MediaQuery.of(context).size.width * 0.05)
+        ]),
         body: body());
   }
 
@@ -32,7 +36,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
       Container(
           padding: const EdgeInsets.only(top: 20, left: 20),
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.55,
+          height: MediaQuery.of(context).size.height * 0.60,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             returnItem(
@@ -81,30 +85,35 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                 TipoFrequencia.values[widget.operacao.status ?? 0].name,
                 Icons.repeat_on_rounded)
           ])),
-      const SizedBox(height: 30),
-      Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [btnExcluir(), btnEditar()])
+      SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+      btnEditar()
     ]);
   }
 
   returnItem(txt, value, IconData icon) {
     return Row(children: [
-      Icon(icon, color: Theme.of(context).hintColor, size: 30),
-      const SizedBox(width: 15),
-      Text(txt,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
-      const SizedBox(width: 15),
-      Text(value, style: const TextStyle(fontSize: 19))
+      Icon(icon, color: Theme.of(context).hintColor),
+      SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+      Text(txt, style: const TextStyle(fontWeight: FontWeight.bold)),
+      SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+      Text(value)
     ]);
   }
 
-  btnExcluir() {
+  btnExcluirIcon() {
     return SizedBox(
-        width: 150,
-        child: WidgetUltil.returnButtonExcluir(() async {
-          await excluirItem(widget.operacao);
-        }));
+        child: WidgetUltil.returnButtonIcon(
+            Icons.delete_forever, Theme.of(context).errorColor, () async {
+      await excluirItem(widget.operacao);
+    }));
+  }
+
+  btnEditarIcon() {
+    return SizedBox(
+        child: WidgetUltil.returnButtonIcon(
+            Icons.edit, Theme.of(context).colorScheme.primary, () async {
+      //await excluirItem(widget.operacao);
+    }));
   }
 
   excluirItem(Operacao item) async {
@@ -112,7 +121,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
       if (item.repetir ?? false) {
         AlertService.alertRadios(
             context,
-            "Alerta",
+            "Alerta!",
             "Identificamos que essa operação repete nos meses futuros selecione uma das opções abaixo:",
             ["Excluir somente essa", "Excluir essa e as futuras"],
             item,
@@ -158,6 +167,9 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
 
   btnEditar() {
     return SizedBox(
-        width: 150, child: WidgetUltil.returnButtonEditar(() => null));
+        width: MediaQuery.of(context).size.width * 0.65,
+        height: MediaQuery.of(context).size.height * 0.09,
+        child: WidgetUltil.returnButton(
+            "Marcar como paga.", Icons.check_circle, () => {}));
   }
 }

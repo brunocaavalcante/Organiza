@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class WidgetUltil {
-  static barWithArrowBackIos(BuildContext context, String title, dataRetorno) {
+  static barWithArrowBackIos(BuildContext context, String title, dataRetorno,
+      [List<Widget>? actions]) {
     return AppBar(
+        actions: actions,
         title: Text(title),
         leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios),
@@ -73,34 +75,21 @@ class WidgetUltil {
         ]));
   }
 
-  static Widget returnButtonEditar(Function()? onPressed) {
+  static Widget returnButton(String txt, IconData icon, Function()? onPressed,
+      [Color? color]) {
     return ElevatedButton(
         onPressed: onPressed,
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-          Icon(Icons.edit),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(icon),
           Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text("Editar", style: TextStyle(fontSize: 20)))
+              padding: EdgeInsets.all(10.0),
+              child: Text(txt, style: TextStyle(fontSize: 15)))
         ]));
   }
 
-  static Widget returnButtonExcluir(Function()? onPressed) {
-    return ElevatedButton(
-        onPressed: onPressed,
-        style: ButtonStyle(
-            backgroundColor:
-                MaterialStatePropertyAll<Color>(Colors.red.withOpacity(0.5))),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(
-            Icons.delete_forever,
-            color: Colors.white.withOpacity(0.8),
-          ),
-          Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text("Excluir",
-                  style: TextStyle(
-                      fontSize: 20, color: Colors.white.withOpacity(0.8))))
-        ]));
+  static Widget returnButtonIcon(
+      IconData icon, Color color, Function()? onPressed) {
+    return IconButton(
+        onPressed: onPressed, icon: Icon(icon, size: 25, color: color));
   }
 }

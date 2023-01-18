@@ -42,7 +42,7 @@ class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
             borderRadius: BorderRadius.all(Radius.circular(25.0))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.49,
+            height: MediaQuery.of(context).size.height * 0.82,
             child: itemHistorico(),
           )
         ]));

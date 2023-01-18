@@ -35,22 +35,24 @@ class AlertService {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-              title: Text(title),
+              title: Text(title,
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
               content: StatefulBuilder(
                   builder: (BuildContext context, StateSetter setState) {
                 return Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(desc),
                   for (var i = 0; i < options.length; i++)
-                    ListTile(
-                        title: Text(options[i]),
-                        leading: Radio(
-                            value: i,
-                            groupValue: opSelecionada,
-                            onChanged: (int? value) {
-                              setState(() {
-                                opSelecionada = value ?? 0;
-                              });
-                            }))
+                    Row(children: [
+                      Radio(
+                          value: i,
+                          groupValue: opSelecionada,
+                          onChanged: (int? value) {
+                            setState(() {
+                              opSelecionada = value ?? 0;
+                            });
+                          }),
+                      Text(options[i])
+                    ])
                 ]);
               }),
               actions: [
