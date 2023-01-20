@@ -56,4 +56,4 @@ enum Status { Pago, Pendente }
 
 enum TipoOperacao { Nenhum, Despesa, Recibo }
 
-enum TipoFrequencia { Nunca, Sempre, Parcelado }
+enum TipoFrequencia { Nunca, AnoTodo, Parcelado }

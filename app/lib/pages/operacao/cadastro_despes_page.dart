@@ -127,10 +127,13 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       item.valor = Ultil().CoverterValorToDecimal(valor.text)!;
       item.status = Status.Pendente.index;
       item.tipoOperacao = operacao;
-      if (item.totalParcelas > 0) {
+      if (item.tipoFrequencia == TipoFrequencia.Parcelado.index) {
         item.valor = item.valor / parcelas;
         await Provider.of<OperacaoService>(context, listen: false)
             .salvarComParcelas(item);
+      } else if (item.tipoFrequencia == TipoFrequencia.AnoTodo.index) {
+        await Provider.of<OperacaoService>(context, listen: false)
+            .salvarAnoTodo(item);
       } else {
         await Provider.of<OperacaoService>(context, listen: false).salvar(item);
       }
@@ -166,14 +169,14 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       return Column(children: [
         Row(children: [
           Radio(
-              value: TipoFrequencia.Sempre,
+              value: TipoFrequencia.AnoTodo,
               groupValue: frequencia,
               onChanged: (TipoFrequencia? value) {
                 setState(() {
                   frequencia = value;
                 });
               }),
-          Text(TipoFrequencia.Sempre.name),
+          const Text("Ano todo"),
           Radio(
               value: TipoFrequencia.Parcelado,
               groupValue: frequencia,

@@ -32,6 +32,16 @@ class OperacaoService extends ChangeNotifier {
     }
   }
 
+  salvarAnoTodo(Operacao operacao) async {
+    DateTime data = operacao.dataReferencia ?? DateTime.now();
+
+    while (data.year == DateTime.now().year) {
+      await salvar(operacao);
+      data = DateTime(data.year, data.month + 1, 1);
+      operacao.dataReferencia = data;
+    }
+  }
+
   atualizar(Operacao item) async {
     if (auth.currentUser != null) {
       await operacao
@@ -120,5 +130,29 @@ class OperacaoService extends ChangeNotifier {
       }
     }
     return op;
+  }
+
+  Future<Operacao?> buscarOperacaoPorDescricao(Operacao op) async {
+    Operacao? retorno = op;
+    if (auth.currentUser != null) {
+      await operacao
+          .doc(auth.currentUser!.uid.toString())
+          .collection("${op.dataReferencia!.month}${op.dataReferencia!.year}")
+          .where('descricao', isEqualTo: op.descricao)
+          .where('valor', isEqualTo: op.valor)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        if (querySnapshot.size > 0) {
+          for (var element in querySnapshot.docs) {
+            Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
+            op = Operacao().toEntity(data);
+            op.id = element.id;
+          }
+        } else {
+          retorno = null;
+        }
+      });
+    }
+    return retorno;
   }
 }
