@@ -25,7 +25,7 @@ class OperacaoService extends ChangeNotifier {
   salvarComParcelas(Operacao operacao) async {
     DateTime data = operacao.dataReferencia ?? DateTime.now();
     for (int i = 1; i <= operacao.totalParcelas; i++) {
-      operacao.parcelasPagas = i;
+      operacao.parcelaAtual = i;
       await salvar(operacao);
       data = DateTime(data.year, data.month + 1, data.day);
       operacao.dataReferencia = data;
@@ -39,7 +39,7 @@ class OperacaoService extends ChangeNotifier {
           .collection(
               "${item.dataReferencia!.month}${item.dataReferencia!.year}")
           .doc(item.id)
-          .set(item.toJson())
+          .update(item.toJson())
           .catchError((error) => throw CustomException(
               "ocorreu um erro ao atualizar tente novamente"));
     }
@@ -63,10 +63,13 @@ class OperacaoService extends ChangeNotifier {
     bool exiteItem = true;
 
     if (auth.currentUser != null) {
+      op = await buscarPrimeiraOperacao(op);
+      DateTime? dt = op.dataReferencia;
+
       while (exiteItem) {
         await operacao
             .doc(auth.currentUser!.uid.toString())
-            .collection("${op.dataReferencia!.month}${op.dataReferencia!.year}")
+            .collection("${dt!.month}${dt!.year}")
             .where('descricao', isEqualTo: op.descricao)
             .where('valor', isEqualTo: op.valor)
             .get()
@@ -78,10 +81,8 @@ class OperacaoService extends ChangeNotifier {
 
               var operacao = Operacao().toEntity(data);
               operacao.id = element.id;
+              dt = DateTime(dt!.year, dt!.month + 1, 1);
               list.add(operacao);
-
-              op.dataReferencia = DateTime(
-                  op.dataReferencia!.year, op.dataReferencia!.month + 1, 1);
             }
           } else {
             exiteItem = false;
@@ -90,5 +91,34 @@ class OperacaoService extends ChangeNotifier {
       }
     }
     return list;
+  }
+
+  Future<Operacao> buscarPrimeiraOperacao(Operacao op) async {
+    DateTime data = DateTime.now();
+    if (auth.currentUser != null) {
+      if (op.parcelaAtual > 1) {
+        while (op.parcelaAtual > 1) {
+          data = DateTime(
+              op.dataReferencia!.year, op.dataReferencia!.month - 1, 1);
+          await operacao
+              .doc(auth.currentUser!.uid.toString())
+              .collection("${data.month}${data.year}")
+              .where('descricao', isEqualTo: op.descricao)
+              .where('valor', isEqualTo: op.valor)
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            if (querySnapshot.size > 0) {
+              for (var element in querySnapshot.docs) {
+                Map<String, dynamic> data =
+                    element.data()! as Map<String, dynamic>;
+                op = Operacao().toEntity(data);
+                op.id = element.id;
+              }
+            }
+          });
+        }
+      }
+    }
+    return op;
   }
 }

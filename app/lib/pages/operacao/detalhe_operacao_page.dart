@@ -19,6 +19,14 @@ class DetalheOperacaoPage extends StatefulWidget {
 
 class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   var valueSelected = 0;
+  int parcelasPagas = 0;
+
+  @override
+  void initState() {
+    retornQtdParcelasPagas();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,28 +73,21 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                 Status.values[widget.operacao.status ?? 0].name, Icons.task),
             SizedBox(height: spaceAlt),
             returnItem(
-                "Parcelado:",
-                widget.operacao.totalParcelas > 0 ? "Sim" : "Não",
+                "Frequencia:",
+                TipoFrequencia.values[widget.operacao.tipoFrequencia ?? 0].name,
                 Icons.playlist_add_check_circle),
             SizedBox(height: spaceAlt),
             returnItem("Quantidade de parcelas:",
                 widget.operacao.totalParcelas.toString(), Icons.file_open),
             SizedBox(height: spaceAlt),
-            returnItem(
-                "Total de parcelas pagas:",
-                widget.operacao.parcelasPagas.toString(),
+            returnItem("Total de parcelas pagas:", parcelasPagas.toString(),
                 Icons.file_copy_rounded),
             SizedBox(height: spaceAlt),
             returnItem("Repetir?", widget.operacao.repetir ? "Sim" : "Não",
                 Icons.repeat),
-            SizedBox(height: spaceAlt),
-            returnItem(
-                "Frequencia:",
-                TipoFrequencia.values[widget.operacao.status ?? 0].name,
-                Icons.repeat_on_rounded)
           ])),
       SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-      btnEditar()
+      btnPagar()
     ]);
   }
 
@@ -157,6 +158,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
         }
         Navigator.pop(context);
         Navigator.pop(context);
+        setState(() {});
       });
     } on CustomException catch (e) {
       ScaffoldMessenger.of(context)
@@ -165,11 +167,36 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
     }
   }
 
-  btnEditar() {
-    return SizedBox(
-        width: MediaQuery.of(context).size.width * 0.65,
-        height: MediaQuery.of(context).size.height * 0.09,
-        child: WidgetUltil.returnButton(
-            "Marcar como paga.", Icons.check_circle, () => {}));
+  btnPagar() {
+    return widget.operacao.status == Status.Pendente.index
+        ? SizedBox(
+            width: MediaQuery.of(context).size.width * 0.65,
+            height: MediaQuery.of(context).size.height * 0.09,
+            child: WidgetUltil.returnButton(
+                "Marcar como paga.", Icons.check_circle, () async {
+              try {
+                widget.operacao.status = Status.Pago.index;
+                await Provider.of<OperacaoService>(context, listen: false)
+                    .atualizar(widget.operacao);
+                Navigator.pop(context);
+              } on CustomException catch (e) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(e.message)));
+                return null;
+              }
+            }))
+        : Container();
+  }
+
+  retornQtdParcelasPagas() async {
+    var parcelas = await Provider.of<OperacaoService>(context, listen: false)
+        .buscarTodasOperacoesPorOperacao(widget.operacao);
+
+    if (widget.operacao.totalParcelas > 0) {
+      setState(() {
+        parcelasPagas =
+            parcelas.where((x) => x.status == Status.Pago.index).length;
+      });
+    }
   }
 }

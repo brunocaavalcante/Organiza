@@ -24,7 +24,6 @@ class Operacao {
       'dataReferencia': dataReferencia,
       'id': id,
       'valor': valor,
-      'parcelasPagas': parcelasPagas,
       'totalParcelas': totalParcelas,
       'parcelaAtual': parcelaAtual,
       'repetir': repetir,
@@ -35,7 +34,6 @@ class Operacao {
   }
 
   Operacao toEntity(Map<String, dynamic> map) {
-    parcelasPagas = map['parcelasPagas'] ?? 0;
     totalParcelas = map['totalParcelas'] ?? 0;
     parcelaAtual = map['parcelaAtual'] ?? 0;
     tipoFrequencia = map['tipoFrequencia'];

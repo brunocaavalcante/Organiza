@@ -256,7 +256,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
               children: [
                 (operacao.totalParcelas > 0
                     ? Text(
-                        "${operacao.parcelasPagas}/${operacao.totalParcelas}",
+                        "${operacao.parcelaAtual}/${operacao.totalParcelas}",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       )
                     : const Text("")),
