@@ -186,17 +186,16 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   }
 
   containerMenu() {
-    return Container(
-        width: MediaQuery.of(context).size.width * 0.95,
-        height: MediaQuery.of(context).size.height * 0.54,
-        margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(25.0))),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text("Contas", style: TextStyle(fontSize: 20)),
-          itemHistorico()
-        ]));
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Container(
+          margin: const EdgeInsets.only(top: 15, left: 15, bottom: 5),
+          child: const Text("Contas",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+      Container(
+          width: MediaQuery.of(context).size.width * 0.95,
+          height: MediaQuery.of(context).size.height * 0.52,
+          child: itemHistorico())
+    ]);
   }
 
   itemHistorico() {
@@ -225,15 +224,12 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                     document.data()! as Map<String, dynamic>;
                 var operacao = Operacao().toEntity(data);
                 operacao.id = document.id;
-
-                return SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: returnCardItem(operacao));
+                return returnCardItem(operacao);
               }).toList());
         });
   }
 
-  returnCardItem(Operacao operacao) {
+  Widget returnCardItem(Operacao operacao) {
     return Card(
         child: ListTile(
             onTap: () {
@@ -257,7 +253,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                   FormatarMoeda.formatar(operacao.valor),
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: operacao.tipoOperacao == TipoOperacao.Recibo.index
+                      color: operacao.status == Status.Pago.index
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.error),
                 )
@@ -275,8 +271,8 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
             subtitle: Text(Status.values[operacao.status ?? 0].name,
                 style: TextStyle(
                     color: operacao.status == Status.Pago.index
-                        ? Colors.green
-                        : Theme.of(context).errorColor)),
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.error)),
             title: Text(operacao.descricao.toString(),
                 textAlign: TextAlign.start)));
   }

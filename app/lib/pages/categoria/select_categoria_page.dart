@@ -35,11 +35,8 @@ class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
   containerMenu() {
     return Container(
         width: MediaQuery.of(context).size.width * 0.95,
-        height: MediaQuery.of(context).size.height * 0.85,
+        height: MediaQuery.of(context).size.height,
         margin: const EdgeInsets.only(left: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(25.0))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.82,
