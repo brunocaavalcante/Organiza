@@ -9,10 +9,10 @@ class SelectColorPage extends StatefulWidget {
 
 class _SelectColorPageState extends State<SelectColorPage> {
   var listColors = [
-    Colors.amber.shade100,
-    Colors.amberAccent.shade400,
-    Colors.amber,
-    Colors.amber.shade900,
+    Colors.yellow.shade100,
+    Colors.yellowAccent.shade400,
+    Colors.yellow,
+    Colors.yellow.shade900,
     Colors.red.shade100,
     Colors.redAccent.shade400,
     Colors.red,

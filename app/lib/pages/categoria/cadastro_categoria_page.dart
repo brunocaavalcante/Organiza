@@ -1,5 +1,5 @@
 import 'package:app/models/categoria.dart';
-import 'package:app/pages/categoria/select_color_page.dart';
+import 'package:app/core/select_color_page.dart';
 import 'package:app/pages/categoria/select_icon_page.dart';
 import 'package:app/services/categoria_service.dart';
 import 'package:flutter/material.dart';

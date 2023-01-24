@@ -1,3 +1,4 @@
+import 'package:app/models/preferencia_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -109,5 +110,22 @@ class UserService extends ChangeNotifier {
   logout() async {
     await auth.signOut();
     _getUser();
+  }
+
+  atualizarPreferencia(PreferenciaUser item) async {
+    if (auth.currentUser != null) {
+      await users
+          .doc(auth.currentUser!.uid.toString())
+          .update({'preferencias': item.toJson()}).catchError((error) =>
+              throw CustomException(
+                  "ocorreu um erro ao atualizar tente novamente"));
+    }
+  }
+
+  Future<DocumentSnapshot<Object?>?> obterPreferenciaUsuario() async {
+    if (auth.currentUser != null) {
+      return await users.doc(auth.currentUser!.uid.toString()).get();
+    }
+    return null;
   }
 }

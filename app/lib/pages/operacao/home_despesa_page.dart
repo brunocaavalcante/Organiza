@@ -79,6 +79,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
             .collection('operacoes')
             .doc(auth!.usuario!.uid.toString())
             .collection("${data.month}${data.year}")
+            .orderBy('status', descending: true)
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
@@ -268,12 +269,24 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                     IconData(operacao.categoria!.icon,
                         fontFamily: operacao.categoria!.fontFamily),
                     color: Color(operacao.categoria!.color))),
-            subtitle: Text(Status.values[operacao.status ?? 0].name,
-                style: TextStyle(
-                    color: operacao.status == Status.Pago.index
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.error)),
+            subtitle: returnTxtStatus(operacao),
             title: Text(operacao.descricao.toString(),
                 textAlign: TextAlign.start)));
+  }
+
+  returnTxtStatus(Operacao operacao) {
+    String txt = "";
+
+    if (operacao.tipoOperacao == TipoOperacao.Recibo.index) {
+      txt = (operacao.status == Status.Pago.index ? "Recebido" : "Pendente");
+    } else {
+      txt = Status.values[operacao.status ?? 0].name;
+    }
+
+    return Text(txt,
+        style: TextStyle(
+            color: operacao.status == Status.Pago.index
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.error));
   }
 }

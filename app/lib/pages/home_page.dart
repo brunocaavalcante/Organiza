@@ -1,4 +1,5 @@
 import 'package:app/pages/operacao/home_despesa_page.dart';
+import 'package:app/pages/settings/settings_page.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -49,7 +50,7 @@ class _HomePageState extends State<HomePage> {
     telas = [];
     telas.add(HomeDespesaPage());
     telas.add(HomeDespesaPage());
-    telas.add(HomeDespesaPage());
+    telas.add(SettingsPage());
     return telas[_currentIndex];
   }
 }
