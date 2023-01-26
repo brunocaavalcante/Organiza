@@ -88,7 +88,7 @@ class _FileWidgetState extends State<FileWidget> {
         width: MediaQuery.of(context).size.width * 0.25,
         height: MediaQuery.of(context).size.height * 0.12,
         child: Icon(Icons.add_a_photo,
-            size: 100, color: Theme.of(context).hintColor));
+            size: 100, color: Theme.of(context).colorScheme.primary));
   }
 
   Widget buildUploadStatus(UploadTask task) => StreamBuilder<TaskSnapshot>(

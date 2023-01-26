@@ -1,10 +1,7 @@
-import 'package:app/models/usuario.dart';
 import 'package:app/services/operacao_service.dart';
 import 'package:app/services/file_service.dart';
 import 'package:app/services/usuario_service.dart';
 import 'package:app/theme/preferencia_tema.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,22 +43,11 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    var users = FirebaseFirestore.instance
-        .collection('users')
-        .doc(auth.currentUser!.uid.toString())
-        .get();
-
     return FutureBuilder(
-        future: users,
+        future: PreferenciaTema.getTheme(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            Map<String, dynamic> data =
-                snapshot.data!.data() as Map<String, dynamic>;
-            var retorno = Usuario().toEntity(data);
-            retorno.id = snapshot.data!.id;
-            PreferenciaTema.setTema(retorno.preferencias);
-
+            PreferenciaTema.configureTheme(snapshot);
             return ValueListenableBuilder(
                 valueListenable: PreferenciaTema.valueNotifier,
                 builder: (BuildContext context, List<ValueNotifier> notifiers,

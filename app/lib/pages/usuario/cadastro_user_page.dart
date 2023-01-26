@@ -73,9 +73,11 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
               WidgetUltil.returnField(
                   "E-mail: ", email, TextInputType.emailAddress, null, ""),
               SizedBox(height: espaco),
-              fieldSenha(),
+              widget.operacao.contains("Editar") ? Container() : fieldSenha(),
               SizedBox(height: espaco),
-              fieldConfirmSenha(),
+              widget.operacao.contains("Editar")
+                  ? Container()
+                  : fieldConfirmSenha(),
               SizedBox(height: espaco),
               WidgetUltil.returnButtonSalvar(onPressedSalvar())
             ],
@@ -95,7 +97,7 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
 
   registrar() async {
     try {
-      var usuario = Usuario();
+      var usuario = widget.user;
       usuario.name = nome.text;
       usuario.telefone = telefone.text;
       usuario.email = email.text;

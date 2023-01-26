@@ -122,7 +122,7 @@ class UserService extends ChangeNotifier {
     }
   }
 
-  Future<DocumentSnapshot<Object?>?> obterPreferenciaUsuario() async {
+  Future<DocumentSnapshot<Object?>?> obterUsuario() async {
     if (auth.currentUser != null) {
       return await users.doc(auth.currentUser!.uid.toString()).get();
     }

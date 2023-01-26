@@ -53,6 +53,9 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
     auth = Provider.of<UserService>(context);
 
     return Scaffold(
+      appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          title: containerMes()),
       body: body(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -68,9 +71,36 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   }
 
   body() {
-    return Column(
-      children: [containerTop(), containerMenu()],
-    );
+    return ListView(children: [
+      Column(
+        children: [containerTop(), containerMenu()],
+      )
+    ]);
+  }
+
+  Widget containerMes() {
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      IconButton(
+          onPressed: () {
+            setState(() {
+              data = DateTime(data.year, data.month - 1, data.day);
+            });
+          },
+          icon: Icon(Icons.arrow_back_ios, color: colorOnPrimary)),
+      const SizedBox(width: 15),
+      Text("${mes[data.month]} ${data.year}",
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold)),
+      IconButton(
+          onPressed: () {
+            setState(() {
+              data = DateTime(data.year, data.month + 1, data.day);
+            });
+          },
+          icon: Icon(Icons.arrow_forward_ios, color: colorOnPrimary))
+    ]);
   }
 
   containerTop() {
@@ -102,39 +132,14 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
           }
           return Container(
               width: width,
-              height: height * 0.33,
-              padding: EdgeInsets.only(top: height * 0.05),
+              height: height * 0.22,
+              padding: EdgeInsets.only(top: height * 0.01),
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
                   borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(60.0),
                       bottomRight: Radius.circular(60.0))),
               child: Column(children: [
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  IconButton(
-                      onPressed: () {
-                        setState(() {
-                          data = DateTime(data.year, data.month - 1, data.day);
-                        });
-                      },
-                      icon: Icon(Icons.arrow_back_ios, color: colorOnPrimary)),
-                  const SizedBox(width: 15),
-                  Text("${mes[data.month]} ${data.year}",
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 15),
-                  IconButton(
-                      onPressed: () {
-                        setState(() {
-                          data = DateTime(data.year, data.month + 1, data.day);
-                        });
-                      },
-                      icon:
-                          Icon(Icons.arrow_forward_ios, color: colorOnPrimary))
-                ]),
-                SizedBox(height: height * 0.03),
                 Text("Balanço do Mês",
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimary,
@@ -192,9 +197,8 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
           margin: const EdgeInsets.only(top: 15, left: 15, bottom: 5),
           child: const Text("Contas",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-      Container(
+      SizedBox(
           width: MediaQuery.of(context).size.width * 0.95,
-          height: MediaQuery.of(context).size.height * 0.52,
           child: itemHistorico())
     ]);
   }
@@ -218,15 +222,14 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
             return const Text("Carregando");
           }
 
-          return ListView(
-              shrinkWrap: true,
+          return Column(
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                Map<String, dynamic> data =
-                    document.data()! as Map<String, dynamic>;
-                var operacao = Operacao().toEntity(data);
-                operacao.id = document.id;
-                return returnCardItem(operacao);
-              }).toList());
+            Map<String, dynamic> data =
+                document.data()! as Map<String, dynamic>;
+            var operacao = Operacao().toEntity(data);
+            operacao.id = document.id;
+            return returnCardItem(operacao);
+          }).toList());
         });
   }
 

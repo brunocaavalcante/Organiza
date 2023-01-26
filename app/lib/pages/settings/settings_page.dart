@@ -1,11 +1,11 @@
 import 'package:app/models/preferencia_user.dart';
 import 'package:app/models/usuario.dart';
+import 'package:app/pages/usuario/cadastro_user_page.dart';
 import 'package:app/theme/preferencia_tema.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/select_color_page.dart';
-import '../../main.dart';
 import '../../services/usuario_service.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -30,7 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future obterPreferenciaUsuario() async {
     UserService auth = Provider.of<UserService>(context, listen: false);
-    var item = await auth.obterPreferenciaUsuario();
+    var item = await auth.obterUsuario();
 
     if (item!.exists) {
       Map<String, dynamic> data = item.data()! as Map<String, dynamic>;
@@ -49,21 +49,6 @@ class _SettingsPageState extends State<SettingsPage> {
         margin: EdgeInsets.only(top: altura * 0.05, left: largura * 0.04),
         child: Column(children: [
           Row(children: [
-            Icon(Icons.manage_accounts,
-                color: tema.colorScheme.secondary, size: 26),
-            SizedBox(width: largura * 0.02),
-            const Text("Usuario",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20))
-          ]),
-          Divider(
-              height: altura * 0.02,
-              thickness: 1,
-              endIndent: 15,
-              color: tema.hintColor.withOpacity(0.25)),
-          returnItem("Editar meu perfil", tema.hintColor, null),
-          returnItem("Alterar minha senha", tema.hintColor, null),
-          SizedBox(height: altura * 0.06),
-          Row(children: [
             Icon(Icons.settings, color: tema.colorScheme.secondary, size: 26),
             SizedBox(width: largura * 0.02),
             const Text("Preferências",
@@ -75,18 +60,37 @@ class _SettingsPageState extends State<SettingsPage> {
               endIndent: 15,
               color: tema.hintColor.withOpacity(0.25)),
           returnItem("Alterar cor do tema", tema.hintColor, alterarCorTema()),
-          returnAlterarTemaItem("Tema escuro", tema.hintColor)
+          returnAlterarTemaItem("Tema escuro", tema.hintColor),
+          SizedBox(height: altura * 0.06),
+          Row(children: [
+            Icon(Icons.manage_accounts,
+                color: tema.colorScheme.secondary, size: 26),
+            SizedBox(width: largura * 0.02),
+            const Text("Usuario",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20))
+          ]),
+          Divider(
+              height: altura * 0.02,
+              thickness: 1,
+              endIndent: 15,
+              color: tema.hintColor.withOpacity(0.25)),
+          returnItem("Editar meu perfil", tema.hintColor, editarPerfil()),
+          returnItem("Alterar minha senha", tema.hintColor, null),
+          returnItem("Sair", tema.hintColor, sair()),
         ]));
   }
 
   returnItem(String txt, Color color, Function()? onPressed) {
-    return ListTile(
-        title: Text(
-          txt,
-          style: TextStyle(fontFamily: "Arial", color: color, fontSize: 20),
-        ),
-        trailing: IconButton(
-            icon: const Icon(Icons.arrow_forward_ios), onPressed: onPressed));
+    return InkWell(
+        onTap: onPressed,
+        child: ListTile(
+            title: Text(
+              txt,
+              style: TextStyle(fontFamily: "Arial", color: color, fontSize: 20),
+            ),
+            trailing: IconButton(
+                icon: const Icon(Icons.arrow_forward_ios),
+                onPressed: onPressed)));
   }
 
   returnAlterarTemaItem(String txt, Color color) {
@@ -107,6 +111,30 @@ class _SettingsPageState extends State<SettingsPage> {
                 PreferenciaTema.setTema(theme);
               });
             }));
+  }
+
+  Function()? editarPerfil() {
+    return (() async {
+      UserService auth = Provider.of<UserService>(context, listen: false);
+      var item = await auth.obterUsuario();
+
+      if (item!.exists) {
+        Map<String, dynamic> data = item.data()! as Map<String, dynamic>;
+        var user = Usuario().toEntity(data);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CadastroUserPage(user: user, operacao: "Editar")));
+      }
+    });
+  }
+
+  Function()? sair() {
+    return ((() async {
+      UserService auth = Provider.of<UserService>(context, listen: false);
+      await auth.logout();
+    }));
   }
 
   Function()? alterarCorTema() {
