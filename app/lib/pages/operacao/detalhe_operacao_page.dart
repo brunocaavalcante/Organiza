@@ -1,3 +1,4 @@
+import 'package:app/pages/operacao/cadastro_despes_page.dart';
 import 'package:app/services/alert_service.dart';
 import 'package:app/core/widgets/widget_ultil.dart';
 import 'package:app/models/operacao.dart';
@@ -72,19 +73,23 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
             returnItem("Status:",
                 Status.values[widget.operacao.status ?? 0].name, Icons.task),
             SizedBox(height: spaceAlt),
+            returnItem("Repetir?", widget.operacao.repetir ? "Sim" : "Não",
+                Icons.repeat),
+            SizedBox(height: spaceAlt),
             returnItem(
                 "Frequencia:",
                 TipoFrequencia.values[widget.operacao.tipoFrequencia ?? 0].name,
                 Icons.playlist_add_check_circle),
             SizedBox(height: spaceAlt),
-            returnItem("Quantidade de parcelas:",
-                widget.operacao.totalParcelas.toString(), Icons.file_open),
+            widget.operacao.totalParcelas > 0
+                ? returnItem("Quantidade de parcelas:",
+                    widget.operacao.totalParcelas.toString(), Icons.file_open)
+                : Container(),
             SizedBox(height: spaceAlt),
-            returnItem("Total de parcelas pagas:", parcelasPagas.toString(),
-                Icons.file_copy_rounded),
-            SizedBox(height: spaceAlt),
-            returnItem("Repetir?", widget.operacao.repetir ? "Sim" : "Não",
-                Icons.repeat),
+            widget.operacao.totalParcelas > 0
+                ? returnItem("Total de parcelas pagas:",
+                    parcelasPagas.toString(), Icons.file_copy_rounded)
+                : Container(),
           ])),
       SizedBox(height: MediaQuery.of(context).size.height * 0.02),
       btnPagar()
@@ -113,7 +118,12 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
     return SizedBox(
         child: WidgetUltil.returnButtonIcon(
             Icons.edit, Theme.of(context).colorScheme.primary, () async {
-      //await excluirItem(widget.operacao);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => CadastroOperacaoPage(
+                  dataRef: widget.operacao.dataReferencia,
+                  operacao: widget.operacao)));
     }));
   }
 
@@ -185,7 +195,23 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                 return null;
               }
             }))
-        : Container();
+        : SizedBox(
+            width: MediaQuery.of(context).size.width * 0.65,
+            height: MediaQuery.of(context).size.height * 0.09,
+            child: WidgetUltil.returnButton(
+                "Marcar como pendente.", Icons.close_rounded, () async {
+              try {
+                widget.operacao.status = Status.Pendente.index;
+                await Provider.of<OperacaoService>(context, listen: false)
+                    .atualizar(widget.operacao);
+                Navigator.pop(context);
+              } on CustomException catch (e) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(e.message)));
+                return null;
+              }
+            }, Theme.of(context).colorScheme.error.withOpacity(.9),
+                Theme.of(context).colorScheme.onError));
   }
 
   retornQtdParcelasPagas() async {

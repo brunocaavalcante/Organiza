@@ -76,14 +76,16 @@ class WidgetUltil {
   }
 
   static Widget returnButton(String txt, IconData icon, Function()? onPressed,
-      [Color? color]) {
+      [Color? color, Color? textColor]) {
     return ElevatedButton(
+        style: ElevatedButton.styleFrom(backgroundColor: color),
         onPressed: onPressed,
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon),
+          Icon(icon, color: textColor),
           Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Text(txt, style: TextStyle(fontSize: 15)))
+              padding: const EdgeInsets.all(10.0),
+              child:
+                  Text(txt, style: TextStyle(fontSize: 15, color: textColor)))
         ]));
   }
 

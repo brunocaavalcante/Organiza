@@ -13,7 +13,8 @@ import '../categoria/select_categoria_page.dart';
 
 class CadastroOperacaoPage extends StatefulWidget {
   DateTime? dataRef;
-  CadastroOperacaoPage({super.key, required this.dataRef});
+  Operacao? operacao;
+  CadastroOperacaoPage({super.key, required this.dataRef, this.operacao});
 
   @override
   State<CadastroOperacaoPage> createState() => _CadastroOperacaoPageState();
@@ -30,6 +31,21 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   Categoria? categoria;
   bool exibir = false;
   Widget customMsgErro = Container();
+
+  @override
+  void initState() {
+    if (widget.operacao != null) {
+      var op = widget.operacao;
+      descricao.text = op!.descricao;
+      valor.text = FormatarMoeda.formatar(op.valor);
+      qtdParcelas.text = op.totalParcelas.toString();
+      categoria = op.categoria;
+      operacao = op.tipoOperacao ?? 1;
+      isRepetir = op.repetir;
+      frequencia = TipoFrequencia.values[op.tipoFrequencia ?? 0];
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,19 +83,21 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
                 customRadioButton(
                     "Recibo", 2, Icons.attach_money_outlined, Colors.green)
               ]),
-              Row(children: [
-                const Text("Repetir ?", style: TextStyle(fontSize: 15)),
-                Switch(
-                    value: isRepetir,
-                    onChanged: (value) {
-                      setState(() {
-                        isRepetir = value;
-                        if (isRepetir == false) {
-                          frequencia = TipoFrequencia.Nunca;
-                        }
-                      });
-                    })
-              ]),
+              widget.operacao == null
+                  ? Row(children: [
+                      const Text("Repetir ?", style: TextStyle(fontSize: 15)),
+                      Switch(
+                          value: isRepetir,
+                          onChanged: (value) {
+                            setState(() {
+                              isRepetir = value;
+                              if (isRepetir == false) {
+                                frequencia = TipoFrequencia.Nunca;
+                              }
+                            });
+                          })
+                    ])
+                  : Container(),
               containerRepetir(),
               const SizedBox(height: 30),
               WidgetUltil.returnButtonSalvar(onPressedSalvar())
@@ -116,26 +134,33 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   cadastrar() async {
     try {
       var parcelas = int.tryParse(qtdParcelas.text) ?? 0;
-      Operacao item = Operacao();
+      Operacao item = widget.operacao ?? Operacao();
       item.repetir = isRepetir;
       item.totalParcelas = parcelas;
       item.tipoFrequencia = frequencia!.index;
-      item.dataCadastro = item.dataCadastro = DateTime.now();
+      item.dataCadastro = DateTime.now();
       item.dataReferencia = widget.dataRef;
       item.descricao = descricao.text;
       item.categoria = categoria ?? Categoria();
       item.valor = Ultil().CoverterValorToDecimal(valor.text)!;
       item.status = Status.Pendente.index;
       item.tipoOperacao = operacao;
-      if (item.tipoFrequencia == TipoFrequencia.Parcelado.index) {
-        item.valor = item.valor / parcelas;
-        await Provider.of<OperacaoService>(context, listen: false)
-            .salvarComParcelas(item);
-      } else if (item.tipoFrequencia == TipoFrequencia.AnoTodo.index) {
-        await Provider.of<OperacaoService>(context, listen: false)
-            .salvarAnoTodo(item);
+
+      if (widget.operacao == null) {
+        if (item.tipoFrequencia == TipoFrequencia.Parcelado.index) {
+          item.valor = item.valor / parcelas;
+          await Provider.of<OperacaoService>(context, listen: false)
+              .salvarComParcelas(item);
+        } else if (item.tipoFrequencia == TipoFrequencia.AnoTodo.index) {
+          await Provider.of<OperacaoService>(context, listen: false)
+              .salvarAnoTodo(item);
+        } else {
+          await Provider.of<OperacaoService>(context, listen: false)
+              .salvar(item);
+        }
       } else {
-        await Provider.of<OperacaoService>(context, listen: false).salvar(item);
+        await Provider.of<OperacaoService>(context, listen: false)
+            .atualizar(item);
       }
       Navigator.pop(context);
     } on CustomException catch (e) {
@@ -165,7 +190,7 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   }
 
   containerRepetir() {
-    if (isRepetir) {
+    if (isRepetir && widget.operacao == null) {
       return Column(children: [
         Row(children: [
           Radio(
