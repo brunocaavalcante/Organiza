@@ -37,6 +37,10 @@ class _SelectColorPageState extends State<SelectColorPage> {
     Colors.grey,
     Colors.grey.shade700,
     Colors.grey.shade900,
+    Colors.cyan.shade100,
+    Colors.cyan,
+    Colors.cyan.shade700,
+    Colors.cyan.shade900,
   ];
   List<Widget> list = [];
 
