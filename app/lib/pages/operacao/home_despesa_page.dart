@@ -1,14 +1,12 @@
-import 'package:app/core/widgets/widget_ultil.dart';
 import 'package:app/pages/operacao/cadastro_despes_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/date_ultils.dart';
 import '../../core/masks.dart';
 import '../../models/custom_exception.dart';
+import '../../models/enums.dart';
 import '../../models/operacao.dart';
-import '../../services/operacao_service.dart';
 import '../../services/usuario_service.dart';
 import 'detalhe_operacao_page.dart';
 
@@ -270,7 +268,8 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                         fontFamily: operacao.categoria!.fontFamily),
                     color: Color(operacao.categoria!.color))),
             subtitle: returnTxtStatus(operacao),
-            title: Text(operacao.descricao.toString(),
+            title: Text(
+                operacao.titulo == "" ? operacao.descricao : operacao.titulo,
                 textAlign: TextAlign.start)));
   }
 

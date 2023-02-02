@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../core/date_ultils.dart';
 import '../../core/masks.dart';
 import '../../models/custom_exception.dart';
+import '../../models/enums.dart';
 import '../../services/operacao_service.dart';
 
 class DetalheOperacaoPage extends StatefulWidget {
@@ -48,12 +49,19 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
           height: MediaQuery.of(context).size.height * 0.60,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            returnItem("Titulo:", widget.operacao.titulo, Icons.description),
+            SizedBox(height: spaceAlt),
             returnItem(
                 "Descrição:", widget.operacao.descricao, Icons.description),
             SizedBox(height: spaceAlt),
             returnItem(
                 "Data:",
                 DateUltils.formatarData(widget.operacao.dataReferencia),
+                Icons.date_range),
+            SizedBox(height: spaceAlt),
+            returnItem(
+                "Data Vencimento:",
+                DateUltils.formatarData(widget.operacao.dataVencimento),
                 Icons.date_range),
             SizedBox(height: spaceAlt),
             returnItem("Valor:", FormatarMoeda.formatar(widget.operacao.valor),
@@ -81,15 +89,11 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                 TipoFrequencia.values[widget.operacao.tipoFrequencia ?? 0].name,
                 Icons.playlist_add_check_circle),
             SizedBox(height: spaceAlt),
-            widget.operacao.totalParcelas > 0
-                ? returnItem("Quantidade de parcelas:",
-                    widget.operacao.totalParcelas.toString(), Icons.file_open)
-                : Container(),
+            returnItem("Quantidade de parcelas:",
+                widget.operacao.totalParcelas.toString(), Icons.file_open),
             SizedBox(height: spaceAlt),
-            widget.operacao.totalParcelas > 0
-                ? returnItem("Total de parcelas pagas:",
-                    parcelasPagas.toString(), Icons.file_copy_rounded)
-                : Container(),
+            returnItem("Total de parcelas pagas:", parcelasPagas.toString(),
+                Icons.file_copy_rounded)
           ])),
       SizedBox(height: MediaQuery.of(context).size.height * 0.02),
       btnPagar()
@@ -97,13 +101,15 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   }
 
   returnItem(txt, value, IconData icon) {
-    return Row(children: [
-      Icon(icon, color: Theme.of(context).hintColor),
-      SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-      Text(txt, style: const TextStyle(fontWeight: FontWeight.bold)),
-      SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-      Text(value)
-    ]);
+    return value != null && value != "" && value != "0"
+        ? Row(children: [
+            Icon(icon, color: Theme.of(context).hintColor),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+            Text(txt, style: const TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+            Text(value)
+          ])
+        : Container();
   }
 
   btnExcluirIcon() {

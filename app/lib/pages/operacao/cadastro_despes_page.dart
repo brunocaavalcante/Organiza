@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/date_ultils.dart';
 import '../../core/masks.dart';
 import '../../core/widgets/widget_ultil.dart';
 import '../../models/custom_exception.dart';
+import '../../models/enums.dart';
 import '../categoria/select_categoria_page.dart';
 
 class CadastroOperacaoPage extends StatefulWidget {
@@ -23,8 +25,10 @@ class CadastroOperacaoPage extends StatefulWidget {
 class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   final formKey = GlobalKey<FormState>();
   final descricao = TextEditingController();
+  final titulo = TextEditingController();
   final valor = TextEditingController();
   final qtdParcelas = TextEditingController();
+  final dataVencimento = TextEditingController();
   TipoFrequencia? frequencia = TipoFrequencia.Nunca;
   int operacao = 1;
   bool isRepetir = false;
@@ -42,6 +46,8 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       categoria = op.categoria;
       operacao = op.tipoOperacao ?? 1;
       isRepetir = op.repetir;
+      titulo.text = op.titulo;
+      dataVencimento.text = DateUltils.formatarData(op.dataVencimento);
       frequencia = TipoFrequencia.values[op.tipoFrequencia ?? 0];
     }
     super.initState();
@@ -50,62 +56,102 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          WidgetUltil.barWithArrowBackIos(context, "Cadastro Despesa", true),
-      body: SingleChildScrollView(
-          child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              WidgetUltil.returnField(
-                  "Descrição: ", descricao, TextInputType.text, null, ""),
-              const SizedBox(height: 10),
-              WidgetUltil.returnField(
-                  "Valor: ",
-                  valor,
-                  TextInputType.number,
-                  [
-                    FilteringTextInputFormatter.digitsOnly,
-                    CurrencyInputFormatter()
-                  ],
-                  "R\$ 0,00"),
-              const SizedBox(height: 10),
-              fieldCategoria(),
-              (exibir == true ? customMsgErro : Container()),
-              const SizedBox(height: 15),
-              Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                customRadioButton(
-                    "Despesa", 1, Icons.money_off_csred_rounded, Colors.red),
-                const SizedBox(width: 15),
-                customRadioButton(
-                    "Recibo", 2, Icons.attach_money_outlined, Colors.green)
-              ]),
-              widget.operacao == null
-                  ? Row(children: [
-                      const Text("Repetir ?", style: TextStyle(fontSize: 15)),
-                      Switch(
-                          value: isRepetir,
-                          onChanged: (value) {
-                            setState(() {
-                              isRepetir = value;
-                              if (isRepetir == false) {
-                                frequencia = TipoFrequencia.Nunca;
-                              }
-                            });
-                          })
-                    ])
-                  : Container(),
-              containerRepetir(),
-              const SizedBox(height: 30),
-              WidgetUltil.returnButtonSalvar(onPressedSalvar())
-            ],
-          ),
-        ),
-      )),
-    );
+        appBar:
+            WidgetUltil.barWithArrowBackIos(context, "Cadastro Despesa", true),
+        body: SingleChildScrollView(
+            child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Form(
+                    key: formKey,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          WidgetUltil.returnField(
+                              "Titulo: ",
+                              titulo,
+                              TextInputType.text,
+                              null,
+                              "",
+                              false,
+                              validacaoSimples()),
+                          const SizedBox(height: 10),
+                          WidgetUltil.returnField("Descrição: (opcional) ",
+                              descricao, TextInputType.text, null, ""),
+                          const SizedBox(height: 10),
+                          WidgetUltil.returnField(
+                              "Data Vencimento: (opcional)",
+                              dataVencimento,
+                              TextInputType.datetime,
+                              [Masks.dataFormatter],
+                              "##/##/####",
+                              false,
+                              validarDataVencimento()),
+                          const SizedBox(height: 10),
+                          WidgetUltil.returnField(
+                              "Valor: ",
+                              valor,
+                              TextInputType.number,
+                              [
+                                FilteringTextInputFormatter.digitsOnly,
+                                CurrencyInputFormatter()
+                              ],
+                              "R\$ 0,00",
+                              false,
+                              validacaoSimples()),
+                          const SizedBox(height: 10),
+                          fieldCategoria(),
+                          (exibir == true ? customMsgErro : Container()),
+                          const SizedBox(height: 15),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                customRadioButton("Despesa", 1,
+                                    Icons.money_off_csred_rounded, Colors.red),
+                                const SizedBox(width: 15),
+                                customRadioButton("Recibo", 2,
+                                    Icons.attach_money_outlined, Colors.green)
+                              ]),
+                          widget.operacao == null
+                              ? Row(children: [
+                                  const Text("Repetir ?",
+                                      style: TextStyle(fontSize: 15)),
+                                  Switch(
+                                      value: isRepetir,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          isRepetir = value;
+                                          if (isRepetir == false) {
+                                            frequencia = TipoFrequencia.Nunca;
+                                          }
+                                        });
+                                      })
+                                ])
+                              : Container(),
+                          containerRepetir(),
+                          const SizedBox(height: 30),
+                          WidgetUltil.returnButtonSalvar(onPressedSalvar())
+                        ])))));
+  }
+
+  String? Function(String?)? validacaoSimples() {
+    return (((value) {
+      if (value == "") {
+        if (value == null || value.isEmpty) return "Campo obrigatorio";
+        return null;
+      }
+    }));
+  }
+
+  String? Function(String?)? validarDataVencimento() {
+    return (((value) {
+      if (value != null && value != "") {
+        DateTime? data = DateUltils.stringToDate(value);
+
+        if (data!.isBefore(DateTime.now()))
+          return "A data de vencimento não pode ser menor que a data atual";
+      }
+      return null;
+    }));
   }
 
   onPressedSalvar() {
@@ -145,6 +191,8 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       item.valor = Ultil().CoverterValorToDecimal(valor.text)!;
       item.status = Status.Pendente.index;
       item.tipoOperacao = operacao;
+      item.titulo = titulo.text;
+      item.dataVencimento = DateUltils.stringToDate(dataVencimento.text);
 
       if (widget.operacao == null) {
         if (item.tipoFrequencia == TipoFrequencia.Parcelado.index) {
@@ -222,7 +270,7 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   Widget fieldQtdParcelas() {
     if (frequencia == TipoFrequencia.Parcelado) {
       return WidgetUltil.returnField("Quantidade de parcelas: ", qtdParcelas,
-          TextInputType.number, null, "");
+          TextInputType.number, null, "", false, validacaoSimples());
     } else {
       return Container();
     }

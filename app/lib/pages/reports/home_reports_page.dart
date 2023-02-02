@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../models/enums.dart';
 import '../../models/operacao.dart';
 
 class HomeReportPage extends StatefulWidget {
@@ -16,7 +17,7 @@ class HomeReportPage extends StatefulWidget {
 
 class _HomeReportPageState extends State<HomeReportPage> {
   UserService? auth;
-  int month = 12;
+  int month = DateTime.now().month;
 
   @override
   Widget build(BuildContext context) {
@@ -96,25 +97,32 @@ class _HomeReportPageState extends State<HomeReportPage> {
   containeTitle() {
     var tam = MediaQuery.of(context).size;
     return Container(
-        margin:
-            EdgeInsets.only(top: tam.height * 0.08, bottom: tam.height * 0.02),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          const Text(
-            "Despesas por categoria",
-            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-          ),
-          OutlinedButton.icon(
-              onPressed: () {
-                AlertService.alertSelect(
-                        context, "Meses", null, mes, () => null)
-                    .then((valueFromDialog) {
-                  month = valueFromDialog ?? month;
-                  setState(() {});
-                });
-              },
-              icon: const Icon(Icons.calendar_month),
-              label: Text("${mes[month]}/${DateTime.now().year}"))
-        ]));
+        width: tam.width,
+        margin: EdgeInsets.only(
+            top: tam.height * 0.05,
+            bottom: tam.height * 0.02,
+            left: tam.width * 0.03),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Despesas por categoria",
+                style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: tam.height * 0.02),
+              OutlinedButton.icon(
+                  onPressed: () {
+                    AlertService.alertSelect(
+                            context, "Meses", null, mes, () => null)
+                        .then((valueFromDialog) {
+                      month = valueFromDialog ?? month;
+                      setState(() {});
+                    });
+                  },
+                  icon: const Icon(Icons.calendar_month),
+                  label: Text("${mes[month]}/${DateTime.now().year}"))
+            ]));
   }
 }
 

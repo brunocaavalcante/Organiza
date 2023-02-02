@@ -16,7 +16,7 @@ class WidgetUltil {
 
   static Widget returnField(String? label, TextEditingController ctr,
       TextInputType? type, List<TextInputFormatter>? masks, String hint,
-      [bool obscureText = false]) {
+      [bool obscureText = false, String? Function(String?)? validacao]) {
     return TextFormField(
         obscureText: obscureText,
         decoration: InputDecoration(
@@ -26,10 +26,7 @@ class WidgetUltil {
         controller: ctr,
         inputFormatters: masks,
         keyboardType: type,
-        validator: (value) {
-          if (value == null || value.isEmpty) return "Campo obrigatorio";
-          return null;
-        });
+        validator: validacao);
   }
 
   static Widget returnTextErro(msg, Color cor) {
