@@ -1,12 +1,13 @@
-import 'package:app/services/alert_service.dart';
+import 'package:app/pages/reports/report_pizza_page.dart';
 import 'package:app/services/usuario_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-
 import '../../models/enums.dart';
 import '../../models/operacao.dart';
+import '../../services/alert_service.dart';
+import '../../services/operacao_service.dart';
 
 class HomeReportPage extends StatefulWidget {
   const HomeReportPage({super.key});
@@ -25,12 +26,34 @@ class _HomeReportPageState extends State<HomeReportPage> {
 
     return Scaffold(
         body: ListView(children: [
-      Column(children: [containeTitle(), relatorioDespesasPorCategoriaPie()])
+      containeData(),
+      relatorioDespesasPorCategoriaPie(),
+      reportBarra()
     ]));
   }
 
+  containeData() {
+    var tam = MediaQuery.of(context).size;
+    return Container(
+        width: tam.width * 0.25,
+        margin: EdgeInsets.only(
+            top: tam.height * 0.05,
+            bottom: tam.height * 0.02,
+            left: tam.width * 0.03),
+        child: OutlinedButton.icon(
+            onPressed: () {
+              AlertService.alertSelect(context, "Meses", null, mes, () => null)
+                  .then((valueFromDialog) {
+                month = valueFromDialog ?? month;
+                setState(() {});
+              });
+            },
+            icon: const Icon(Icons.calendar_month),
+            label: Text("${mes[month]}/${DateTime.now().year}")));
+  }
+
   relatorioDespesasPorCategoriaPie() {
-    List<ChartCircularModel> lista = [];
+    List<ChartModel> lista = [];
 
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -45,34 +68,20 @@ class _HomeReportPageState extends State<HomeReportPage> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
           lista = obtemListaCategoria(snapshot);
-          return Center(
-              child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.8,
-                  child: SfCircularChart(
-                      legend: Legend(
-                          isVisible: true,
-                          overflowMode: LegendItemOverflowMode.wrap),
-                      series: <CircularSeries>[
-                        PieSeries<ChartCircularModel, String>(
-                            dataSource: lista,
-                            dataLabelSettings:
-                                const DataLabelSettings(isVisible: true),
-                            xValueMapper: (ChartCircularModel data, _) =>
-                                data.text,
-                            yValueMapper: (ChartCircularModel data, _) =>
-                                data.value)
-                      ])));
+          return ReportPizza(
+              lista: lista,
+              title:
+                  "Despesas por categoria - ${mes[month]}/${DateTime.now().year}",
+              data: DateTime.now(),
+              updateData: null);
         });
   }
 
-  List<ChartCircularModel> obtemListaCategoria(
-      AsyncSnapshot<QuerySnapshot> snapshot) {
-    List<ChartCircularModel> lista = [];
+  List<ChartModel> obtemListaCategoria(AsyncSnapshot<QuerySnapshot> snapshot) {
+    List<ChartModel> lista = [];
     for (var element in snapshot.data!.docs) {
       Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
       data["Id"] = element.id;
@@ -84,7 +93,7 @@ class _HomeReportPageState extends State<HomeReportPage> {
             element.text.contains((operacao.categoria!.descricao)));
         lista[index].value += operacao.valor;
       } else {
-        var item = ChartCircularModel();
+        var item = ChartModel();
         item.cor = Color(operacao.categoria!.color);
         item.text = operacao.categoria!.descricao;
         item.value = operacao.valor;
@@ -94,40 +103,62 @@ class _HomeReportPageState extends State<HomeReportPage> {
     return lista;
   }
 
-  containeTitle() {
-    var tam = MediaQuery.of(context).size;
-    return Container(
-        width: tam.width,
-        margin: EdgeInsets.only(
-            top: tam.height * 0.05,
-            bottom: tam.height * 0.02,
-            left: tam.width * 0.03),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Despesas por categoria",
-                style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: tam.height * 0.02),
-              OutlinedButton.icon(
-                  onPressed: () {
-                    AlertService.alertSelect(
-                            context, "Meses", null, mes, () => null)
-                        .then((valueFromDialog) {
-                      month = valueFromDialog ?? month;
-                      setState(() {});
-                    });
-                  },
-                  icon: const Icon(Icons.calendar_month),
-                  label: Text("${mes[month]}/${DateTime.now().year}"))
-            ]));
+  reportBarra() {
+    return FutureBuilder(
+        future: Provider.of<OperacaoService>(context, listen: false)
+            .buscarOperacoesPorMesAno(month, DateTime.now().year),
+        builder:
+            (BuildContext context, AsyncSnapshot<List<Operacao>> snapshot) {
+          if (snapshot.hasData) {
+            List<ChartModel> lista = despesaXreceita(snapshot);
+            return Container(
+                height: 550,
+                child: SfCartesianChart(
+                  title: ChartTitle(
+                      text:
+                          "Despesas X Receitas - ${mes[month]}/${DateTime.now().year}"),
+                  primaryXAxis: CategoryAxis(),
+                  primaryYAxis: NumericAxis(),
+                  series: <ChartSeries>[
+                    ColumnSeries<ChartModel, String>(
+                        dataSource: lista,
+                        dataLabelSettings: const DataLabelSettings(
+                            isVisible: true,
+                            labelPosition: ChartDataLabelPosition.inside),
+                        pointColorMapper: (ChartModel data, _) => data.cor,
+                        xValueMapper: (ChartModel data, _) => data.text,
+                        yValueMapper: (ChartModel data, _) => data.value)
+                  ],
+                ));
+          } else {
+            return const CircularProgressIndicator();
+          }
+        });
   }
-}
 
-class ChartCircularModel {
-  double value = 0;
-  String text = "";
-  Color? cor;
+  List<ChartModel> despesaXreceita(AsyncSnapshot<List<Operacao>> lista) {
+    List<ChartModel> retorno = [];
+    double totalDespesa = 0;
+    double totalReceita = 0;
+
+    for (var item in lista.data!) {
+      if (item.tipoOperacao == TipoOperacao.Recibo.index) {
+        totalReceita += item.valor;
+      } else if (item.tipoOperacao == TipoOperacao.Despesa.index) {
+        totalDespesa += item.valor;
+      }
+    }
+    var depesa = ChartModel();
+    depesa.text = "Despesas";
+    depesa.value = totalDespesa;
+    depesa.cor = Theme.of(context).colorScheme.error;
+    var receita = ChartModel();
+    receita.text = "Receitas";
+    receita.value = totalReceita;
+    receita.cor = Colors.blue;
+
+    retorno.add(depesa);
+    retorno.add(receita);
+    return retorno;
+  }
 }

@@ -68,6 +68,28 @@ class OperacaoService extends ChangeNotifier {
     }
   }
 
+  Future<List<Operacao>> buscarOperacoesPorMesAno(int mes, int ano) async {
+    List<Operacao> list = [];
+
+    if (auth.currentUser != null) {
+      var teste = await operacao
+          .doc(auth.currentUser!.uid.toString())
+          .collection("${mes}${ano}")
+          .get();
+
+      if (teste.size > 0) {
+        for (var element in teste.docs) {
+          Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
+
+          var operacao = Operacao().toEntity(data);
+          operacao.id = element.id;
+          list.add(operacao);
+        }
+      }
+    }
+    return list;
+  }
+
   Future<List<Operacao>> buscarTodasOperacoesPorOperacao(Operacao op) async {
     List<Operacao> list = [];
     bool exiteItem = true;
