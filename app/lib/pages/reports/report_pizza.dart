@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import '../../models/enums.dart';
+
+import '../../models/chartmodel.dart';
 
 class ReportPizza extends StatefulWidget {
   List<ChartModel> lista;
@@ -40,10 +41,4 @@ class _ReportPizzaState extends State<ReportPizza> {
                   ])))
     ]);
   }
-}
-
-class ChartModel {
-  double value = 0;
-  String text = "";
-  Color? cor;
 }

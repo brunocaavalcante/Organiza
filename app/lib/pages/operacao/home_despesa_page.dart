@@ -1,14 +1,13 @@
 import 'package:app/pages/operacao/cadastro_despes_page.dart';
+import 'package:app/pages/operacao/widgets/widget_list_itens_operacao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/masks.dart';
-import '../../models/custom_exception.dart';
 import '../../models/enums.dart';
 import '../../models/operacao.dart';
 import '../../services/usuario_service.dart';
-import 'detalhe_operacao_page.dart';
 
 class HomeDespesaPage extends StatefulWidget {
   const HomeDespesaPage({super.key});
@@ -27,6 +26,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   int? valueSelected;
   UserService? auth;
   late DateTime data = DateTime.now();
+  TextEditingController titulo = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +68,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   body() {
     return ListView(children: [
       Column(
-        children: [containerTop(), containerMenu()],
+        children: [containerTop(), ListItensOperacao()],
       )
     ]);
   }
@@ -184,108 +184,5 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
       totalPago = totalPago + item.valor;
     }
     total = totalPago - totalPagar;
-  }
-
-  containerMenu() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Container(
-          margin: const EdgeInsets.only(top: 15, left: 15, bottom: 5),
-          child: const Text("Contas",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-      SizedBox(
-          width: MediaQuery.of(context).size.width * 0.95,
-          child: itemHistorico())
-    ]);
-  }
-
-  itemHistorico() {
-    Stream<QuerySnapshot> _participanteStream = FirebaseFirestore.instance
-        .collection('operacoes')
-        .doc(auth!.usuario!.uid.toString())
-        .collection("${data.month}${data.year}")
-        //.orderBy('DataCadastro', descending: true)
-        .snapshots();
-
-    return StreamBuilder<QuerySnapshot>(
-        stream: _participanteStream,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return const Text('Erro!');
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text("Carregando");
-          }
-
-          return Column(
-              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-            Map<String, dynamic> data =
-                document.data()! as Map<String, dynamic>;
-            var operacao = Operacao().toEntity(data);
-            operacao.id = document.id;
-            return returnCardItem(operacao);
-          }).toList());
-        });
-  }
-
-  Widget returnCardItem(Operacao operacao) {
-    return Card(
-        child: ListTile(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          DetalheOperacaoPage(operacao: operacao)));
-            },
-            trailing: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                (operacao.totalParcelas > 0
-                    ? Text(
-                        "${operacao.parcelaAtual}/${operacao.totalParcelas}",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      )
-                    : const Text("")),
-                Text(
-                  FormatarMoeda.formatar(operacao.valor),
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: operacao.status == Status.Pago.index
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.error),
-                )
-              ],
-            ),
-            leading: Container(
-                width: 50,
-                height: 50,
-                clipBehavior: Clip.antiAlias,
-                decoration: const BoxDecoration(shape: BoxShape.circle),
-                child: Icon(
-                    IconData(operacao.categoria!.icon,
-                        fontFamily: operacao.categoria!.fontFamily),
-                    color: Color(operacao.categoria!.color))),
-            subtitle: returnTxtStatus(operacao),
-            title: Text(
-                operacao.titulo == "" ? operacao.descricao : operacao.titulo,
-                textAlign: TextAlign.start)));
-  }
-
-  returnTxtStatus(Operacao operacao) {
-    String txt = "";
-
-    if (operacao.tipoOperacao == TipoOperacao.Recibo.index) {
-      txt = (operacao.status == Status.Pago.index ? "Recebido" : "Pendente");
-    } else {
-      txt = Status.values[operacao.status ?? 0].name;
-    }
-
-    return Text(txt,
-        style: TextStyle(
-            color: operacao.status == Status.Pago.index
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.error));
   }
 }
