@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../models/chartmodel.dart';
+import '../../models/report/chartdata.dart';
+import '../../models/report/report.dart';
 
 class ReportPizza extends StatefulWidget {
-  List<ChartModel> lista;
-  String? title;
-  DateTime? data;
-  Function()? updateData;
-  ReportPizza(
-      {super.key,
-      required this.lista,
-      required this.title,
-      required this.data,
-      required this.updateData});
+  Report report;
+  ReportPizza({super.key, required this.report});
 
   @override
   State<ReportPizza> createState() => _ReportPizzaState();
@@ -27,17 +20,17 @@ class _ReportPizzaState extends State<ReportPizza> {
           child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.8,
               child: SfCircularChart(
-                  title: ChartTitle(text: widget.title ?? ""),
+                  title: ChartTitle(text: widget.report.name ?? ""),
                   legend: Legend(
                       isVisible: true,
                       overflowMode: LegendItemOverflowMode.wrap),
                   series: <CircularSeries>[
-                    PieSeries<ChartModel, String>(
-                        dataSource: widget.lista,
+                    PieSeries<ChartData, String>(
+                        dataSource: widget.report.listData,
                         dataLabelSettings:
                             const DataLabelSettings(isVisible: true),
-                        xValueMapper: (ChartModel data, _) => data.text,
-                        yValueMapper: (ChartModel data, _) => data.value)
+                        xValueMapper: (ChartData data, _) => data.text,
+                        yValueMapper: (ChartData data, _) => data.value)
                   ])))
     ]);
   }

@@ -2,13 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/masks.dart';
+import '../../../core/widgets/widget_ultil.dart';
 import '../../../models/enums.dart';
 import '../../../models/operacao.dart';
 import '../../../services/usuario_service.dart';
 import '../detalhe_operacao_page.dart';
 
 class ListItensOperacao extends StatefulWidget {
-  const ListItensOperacao({super.key});
+  DateTime? data;
+  ListItensOperacao({super.key, required this.data});
 
   @override
   State<ListItensOperacao> createState() => _ListItensOperacaoState();
@@ -16,7 +18,6 @@ class ListItensOperacao extends StatefulWidget {
 
 class _ListItensOperacaoState extends State<ListItensOperacao> {
   UserService? auth;
-  late DateTime data = DateTime.now();
   TextEditingController titulo = TextEditingController();
 
   @override
@@ -35,7 +36,7 @@ class _ListItensOperacaoState extends State<ListItensOperacao> {
           width: MediaQuery.of(context).size.width * 0.95,
           margin:
               EdgeInsets.only(bottom: MediaQuery.of(context).size.width * 0.02),
-          child: barraConsulta()),
+          child: WidgetUltil.barraConsulta(barOnchange())),
       SizedBox(
           width: MediaQuery.of(context).size.width * 0.95,
           child: itemHistorico())
@@ -46,7 +47,7 @@ class _ListItensOperacaoState extends State<ListItensOperacao> {
     Stream<QuerySnapshot> _participanteStream = FirebaseFirestore.instance
         .collection('operacoes')
         .doc(auth!.usuario!.uid.toString())
-        .collection("${data.month}${data.year}")
+        .collection("${widget.data!.month}${widget.data!.year}")
         //.orderBy('DataCadastro', descending: true)
         .snapshots();
 
@@ -141,16 +142,10 @@ class _ListItensOperacaoState extends State<ListItensOperacao> {
                 : Theme.of(context).colorScheme.error));
   }
 
-  Widget barraConsulta() {
-    return TextField(
-        controller: titulo,
-        decoration: const InputDecoration(
-            prefixIcon: Icon(Icons.search, size: 35),
-            border: OutlineInputBorder(),
-            hintText: "Procurar..."),
-        onChanged: (val) {
-          titulo.text = val;
-          setState(() {});
-        });
+  Function(String)? barOnchange() {
+    return ((val) {
+      titulo.text = val;
+      setState(() {});
+    });
   }
 }

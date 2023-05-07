@@ -16,8 +16,8 @@ class PreferenciaTema {
   static setTema(PreferenciaUser preferencia) async {
     if (preferencia.colorTheme != null) {
       tema.value =
-          preferencia!.darkMode == true ? Brightness.dark : Brightness.light;
-      corTema.value = Color(preferencia!.colorTheme ?? Colors.blue.value);
+          preferencia.darkMode == true ? Brightness.dark : Brightness.light;
+      corTema.value = Color(preferencia.colorTheme ?? Colors.blue.value);
       valueNotifier.value = [];
       valueNotifier.value.add(tema);
       valueNotifier.value.add(corTema);

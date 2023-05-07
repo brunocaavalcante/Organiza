@@ -22,6 +22,7 @@ class DetalheOperacaoPage extends StatefulWidget {
 class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   var valueSelected = 0;
   int parcelasPagas = 0;
+  OperacaoService? service;
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
 
   @override
   Widget build(BuildContext context) {
+    service = Provider.of<OperacaoService>(context, listen: false);
     return Scaffold(
         appBar: WidgetUltil.barWithArrowBackIos(context, "Detalhes", null, [
           btnExcluirIcon(),
@@ -135,7 +137,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
 
   excluirItem(Operacao item) async {
     try {
-      if (item.repetir ?? false) {
+      if (item.repetir) {
         AlertService.alertRadios(
             context,
             "Alerta!",
@@ -159,17 +161,14 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
     try {
       return (() async {
         if (AlertService.opSelecionada == 0) {
-          await Provider.of<OperacaoService>(context, listen: false)
-              .excluir(item);
+          await service!.excluir(item);
         }
         if (AlertService.opSelecionada == 1) {
           var listaExcluir =
-              await Provider.of<OperacaoService>(context, listen: false)
-                  .buscarTodasOperacoesPorOperacao(item);
+              await service!.buscarTodasOperacoesPorOperacao(item);
 
           for (var item in listaExcluir) {
-            await Provider.of<OperacaoService>(context, listen: false)
-                .excluir(item);
+            await service!.excluir(item);
           }
         }
         Navigator.pop(context);

@@ -20,8 +20,10 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   var height;
   var width;
   Color? colorOnPrimary;
-  double totalPago = 0;
+  double totalReceita = 0;
+  double totalDespesa = 0;
   double totalPagar = 0;
+  double totalPago = 0;
   double total = 0;
   int? valueSelected;
   UserService? auth;
@@ -36,40 +38,37 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
     auth = Provider.of<UserService>(context);
 
     return Dismissible(
-      resizeDuration: const Duration(milliseconds: 10),
-      key: UniqueKey(),
-      direction: DismissDirection.horizontal,
-      onDismissed: (direction) {
-        if (direction == DismissDirection.endToStart) {
-          data = DateTime(data.year, data.month + 1, 1);
-        } else {
-          data = DateTime(data.year, data.month - 1, 1);
-        }
-        setState(() {});
-      },
-      child: Scaffold(
-          appBar: AppBar(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              title: containerMes()),
-          body: body(),
-          floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            CadastroOperacaoPage(dataRef: data)));
-              },
-              tooltip: 'Add Despesa',
-              child: const Icon(Icons.add))),
-    );
+        resizeDuration: const Duration(milliseconds: 10),
+        key: UniqueKey(),
+        direction: DismissDirection.horizontal,
+        onDismissed: (direction) {
+          if (direction == DismissDirection.endToStart) {
+            data = DateTime(data.year, data.month + 1, 1);
+          } else {
+            data = DateTime(data.year, data.month - 1, 1);
+          }
+          setState(() {});
+        },
+        child: Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                title: containerMes()),
+            body: body(),
+            floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              CadastroOperacaoPage(dataRef: data)));
+                },
+                tooltip: 'Add Despesa',
+                child: const Icon(Icons.add))));
   }
 
   body() {
     return ListView(children: [
-      Column(
-        children: [containerTop(), ListItensOperacao()],
-      )
+      Column(children: [containerTop(), ListItensOperacao(data: data)])
     ]);
   }
 
@@ -104,7 +103,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
             .collection('operacoes')
             .doc(auth!.usuario!.uid.toString())
             .collection("${data.month}${data.year}")
-            .orderBy('status', descending: true)
+            .orderBy('status')
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
@@ -116,6 +115,8 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
               child: CircularProgressIndicator(),
             );
           }
+          totalDespesa = 0;
+          totalReceita = 0;
           totalPagar = 0;
           totalPago = 0;
           total = 0;
@@ -127,7 +128,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
           }
           return Container(
               width: width,
-              height: height * 0.22,
+              height: height * 0.24,
               padding: EdgeInsets.only(top: height * 0.01),
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
@@ -145,7 +146,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                         color: Theme.of(context).colorScheme.onPrimary,
                         fontSize: 23,
                         fontWeight: FontWeight.bold)),
-                SizedBox(height: height * 0.02),
+                SizedBox(height: height * 0.01),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -161,28 +162,62 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text("${FormatarMoeda.formatar(totalPago)}",
+                      Text("${FormatarMoeda.formatar(totalReceita)}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onPrimary,
                               fontSize: 16)),
-                      Text("${FormatarMoeda.formatar(totalPagar)}",
+                      Text("${FormatarMoeda.formatar(totalDespesa)}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onPrimary,
                               fontSize: 16)),
-                    ])
+                    ]),
+                SizedBox(height: height * 0.02),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    labelTotal("Despesa pagas", totalPago),
+                    labelTotal("Despesa pendente", totalPagar)
+                  ],
+                )
               ]));
         });
   }
 
+  labelTotal(String text, double value) {
+    return Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+      Text(text,
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary, fontSize: 16)),
+      Text("${FormatarMoeda.formatar(value)}",
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimary,
+              fontSize: 16))
+    ]);
+  }
+
   atualizaTotalizadores(Operacao item) {
-    if (item.tipoOperacao == TipoOperacao.Despesa.index) {
-      totalPagar = totalPagar + item.valor;
+    if (item.tipoOperacao == TipoOperacao.Despesa.index &&
+        item.afetarTotalizadores) {
+      totalDespesa = totalDespesa + item.valor;
+
+      if (item.status == Status.Pendente.index) {
+        totalPagar = totalPagar + item.valor;
+      }
+
+      if (item.status == Status.Pago.index) {
+        totalPago = totalPago + item.valor;
+      }
     }
-    if (item.tipoOperacao == TipoOperacao.Recibo.index) {
-      totalPago = totalPago + item.valor;
+    if (item.tipoOperacao == TipoOperacao.Recibo.index &&
+        item.afetarTotalizadores) {
+      totalReceita = totalReceita + item.valor;
     }
-    total = totalPago - totalPagar;
+
+    if (item.afetarTotalizadores) {
+      total = totalReceita - totalDespesa;
+    }
   }
 }

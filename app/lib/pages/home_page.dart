@@ -13,7 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _counter = 0;
   int _currentIndex = 0;
   List<Widget> telas = [];
 
@@ -27,7 +26,7 @@ class _HomePageState extends State<HomePage> {
     return CurvedNavigationBar(
       color: Theme.of(context).colorScheme.primary,
       backgroundColor: Theme.of(context).colorScheme.background,
-      animationDuration: Duration(milliseconds: 300),
+      animationDuration: const Duration(milliseconds: 300),
       onTap: (index) {
         setState(() {
           _currentIndex = index;
@@ -49,9 +48,9 @@ class _HomePageState extends State<HomePage> {
 
   returnView() {
     telas = [];
-    telas.add(HomeDespesaPage());
-    telas.add(HomeReportPage());
-    telas.add(SettingsPage());
+    telas.add(const HomeDespesaPage());
+    telas.add(const HomeReportPage());
+    telas.add(const SettingsPage());
     return telas[_currentIndex];
   }
 }

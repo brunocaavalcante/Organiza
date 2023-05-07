@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/custom_exception.dart';
+import '../models/filter_query.dart';
 import '../models/operacao.dart';
 
 class OperacaoService extends ChangeNotifier {
@@ -22,7 +23,8 @@ class OperacaoService extends ChangeNotifier {
   }
 
   salvarComParcelas(Operacao operacao) async {
-    DateTime data = operacao.dataReferencia ?? DateTime.now();
+    DateTime data = operacao.dataReferencia ??
+        DateTime(DateTime.now().year, DateTime.now().month, 1);
     for (int i = 1; i <= operacao.totalParcelas; i++) {
       operacao.parcelaAtual = i;
       await salvar(operacao);
@@ -32,7 +34,8 @@ class OperacaoService extends ChangeNotifier {
   }
 
   salvarAnoTodo(Operacao operacao) async {
-    DateTime data = operacao.dataReferencia ?? DateTime.now();
+    DateTime data = operacao.dataReferencia ??
+        DateTime(DateTime.now().year, DateTime.now().month, 1);
 
     while (data.year == DateTime.now().year) {
       await salvar(operacao);
@@ -49,8 +52,11 @@ class OperacaoService extends ChangeNotifier {
               "${item.dataReferencia!.month}${item.dataReferencia!.year}")
           .doc(item.id)
           .update(item.toJson())
-          .catchError((error) => throw CustomException(
-              "ocorreu um erro ao atualizar tente novamente"));
+          .catchError((error) => {
+                print(error),
+                throw CustomException(
+                    "ocorreu um erro ao atualizar tente novamente")
+              });
     }
   }
 
@@ -78,12 +84,40 @@ class OperacaoService extends ChangeNotifier {
 
       if (teste.size > 0) {
         for (var element in teste.docs) {
-          Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
+          Map<String, dynamic> data = element.data() as Map<String, dynamic>;
 
           var operacao = Operacao().toEntity(data);
           operacao.id = element.id;
           list.add(operacao);
         }
+      }
+    }
+    return list;
+  }
+
+  Future<List<Operacao>> buscarTodasOperacoesAno() async {
+    List<Operacao> list = [];
+    int mes = 1;
+
+    if (auth.currentUser != null) {
+      while (mes != 12) {
+        await operacao
+            .doc(auth.currentUser!.uid.toString())
+            .collection("${mes}${DateTime.now().year}")
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          if (querySnapshot.size > 0) {
+            for (var element in querySnapshot.docs) {
+              Map<String, dynamic> data =
+                  element.data()! as Map<String, dynamic>;
+
+              var operacao = Operacao().toEntity(data);
+              operacao.id = element.id;
+              list.add(operacao);
+            }
+            mes += 1;
+          }
+        });
       }
     }
     return list;

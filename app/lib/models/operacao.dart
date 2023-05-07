@@ -1,8 +1,8 @@
 import 'package:app/models/categoria.dart';
 import '../core/date_ultils.dart';
+import 'entity.dart';
 
-class Operacao {
-  String id = "";
+class Operacao extends Entity {
   String descricao = "";
   String titulo = "";
   double valor = 0;
@@ -17,6 +17,7 @@ class Operacao {
   int parcelasPagas = 0;
   int parcelaAtual = 0;
   bool repetir = false;
+  bool afetarTotalizadores = false;
 
   Map<String, Object?> toJson() {
     return {
@@ -33,7 +34,8 @@ class Operacao {
       'repetir': repetir,
       'tipoOperacao': tipoOperacao,
       'tipoFrequencia': tipoFrequencia,
-      'categoria': categoria!.toJson()
+      'categoria': categoria!.toJson(),
+      'afetarTotalizadores': afetarTotalizadores
     };
   }
 
@@ -42,6 +44,7 @@ class Operacao {
     parcelaAtual = map['parcelaAtual'] ?? 0;
     tipoFrequencia = map['tipoFrequencia'];
     repetir = map['repetir'];
+    afetarTotalizadores = map['afetarTotalizadores'] ?? true;
     tipoOperacao = map['tipoOperacao'];
     status = map['status'];
     descricao = map['descricao'];

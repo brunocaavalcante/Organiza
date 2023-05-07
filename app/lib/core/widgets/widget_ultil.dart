@@ -91,4 +91,26 @@ class WidgetUltil {
     return IconButton(
         onPressed: onPressed, icon: Icon(icon, size: 25, color: color));
   }
+
+  static Widget barraConsulta(Function(String)? onchange) {
+    return TextField(
+        decoration: const InputDecoration(
+            prefixIcon: Icon(Icons.search, size: 35),
+            border: OutlineInputBorder(),
+            hintText: "Procurar..."),
+        onChanged: onchange);
+  }
+
+  static customRadioButton(String text, int index, Color color,
+      [Function()? onpressed, IconData? icon]) {
+    return OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: color),
+        ),
+        onPressed: onpressed,
+        icon: icon == null
+            ? const SizedBox(width: 0, height: 0)
+            : Icon(icon, color: color),
+        label: Text(text, style: TextStyle(color: color)));
+  }
 }

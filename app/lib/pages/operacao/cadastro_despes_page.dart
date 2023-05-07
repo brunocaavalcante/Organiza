@@ -32,6 +32,7 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   TipoFrequencia? frequencia = TipoFrequencia.Nunca;
   int operacao = 1;
   bool isRepetir = false;
+  bool afetarTotalizadores = true;
   Categoria? categoria;
   bool exibir = false;
   Widget customMsgErro = Container();
@@ -46,6 +47,7 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       categoria = op.categoria;
       operacao = op.tipoOperacao ?? 1;
       isRepetir = op.repetir;
+      afetarTotalizadores = op.afetarTotalizadores;
       titulo.text = op.titulo;
       dataVencimento.text = DateUltils.formatarData(op.dataVencimento);
       frequencia = TipoFrequencia.values[op.tipoFrequencia ?? 0];
@@ -111,26 +113,45 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
                                 customRadioButton("Recibo", 2,
                                     Icons.attach_money_outlined, Colors.green)
                               ]),
+                          const SizedBox(height: 10),
                           widget.operacao == null
-                              ? Row(children: [
-                                  const Text("Repetir ?",
-                                      style: TextStyle(fontSize: 15)),
-                                  Switch(
-                                      value: isRepetir,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          isRepetir = value;
-                                          if (isRepetir == false) {
-                                            frequencia = TipoFrequencia.Nunca;
-                                          }
-                                        });
-                                      })
-                                ])
-                              : Container(),
+                              ? Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                      const Text("Repetir ?",
+                                          style: TextStyle(fontSize: 15)),
+                                      Switch(
+                                          value: isRepetir,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              isRepetir = value;
+                                              if (isRepetir == false) {
+                                                frequencia =
+                                                    TipoFrequencia.Nunca;
+                                              }
+                                            });
+                                          }),
+                                      fieldAfetaTotalizadores()
+                                    ])
+                              : fieldAfetaTotalizadores(),
                           containerRepetir(),
                           const SizedBox(height: 30),
                           WidgetUltil.returnButtonSalvar(onPressedSalvar())
                         ])))));
+  }
+
+  fieldAfetaTotalizadores() {
+    return Row(children: [
+      const Text("Afetar Totalizadores ?", style: TextStyle(fontSize: 15)),
+      Switch(
+          value: afetarTotalizadores,
+          onChanged: (value) {
+            setState(() {
+              afetarTotalizadores = value;
+            });
+          })
+    ]);
   }
 
   String? Function(String?)? validacaoSimples() {
@@ -147,8 +168,9 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       if (value != null && value != "") {
         DateTime? data = DateUltils.stringToDate(value);
 
-        if (data!.isBefore(DateTime.now()))
+        if (data!.isBefore(DateTime.now())) {
           return "A data de vencimento não pode ser menor que a data atual";
+        }
       }
       return null;
     }));
@@ -192,6 +214,7 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       item.status = Status.Pendente.index;
       item.tipoOperacao = operacao;
       item.titulo = titulo.text;
+      item.afetarTotalizadores = afetarTotalizadores;
       item.dataVencimento = DateUltils.stringToDate(dataVencimento.text);
 
       if (widget.operacao == null) {
