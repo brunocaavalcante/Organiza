@@ -2,6 +2,7 @@ import 'package:app/models/categoria.dart';
 import 'package:app/models/operacao.dart';
 import 'package:app/models/ultil.dart';
 import 'package:app/services/operacao_service.dart';
+import 'package:app/services/rotina.service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -200,9 +201,10 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   }
 
   cadastrar() async {
+    Operacao item = widget.operacao ?? Operacao();
+
     try {
       var parcelas = int.tryParse(qtdParcelas.text) ?? 0;
-      Operacao item = widget.operacao ?? Operacao();
       item.repetir = isRepetir;
       item.totalParcelas = parcelas;
       item.tipoFrequencia = frequencia!.index;
@@ -233,10 +235,20 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
         await Provider.of<OperacaoService>(context, listen: false)
             .atualizar(item);
       }
-      Navigator.pop(context);
+
+      Navigator.pop(context, false);
     } on CustomException catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
+      var sucesso = false;
+
+      if (e.error!.code == "not-found") {
+        sucesso = await Provider.of<RotinaService>(context, listen: false)
+            .verificaErroDataRefrencia(context, item, widget.dataRef!.month);
+      }
+
+      if (sucesso == false) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     }
   }
 

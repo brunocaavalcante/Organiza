@@ -1,11 +1,11 @@
 import 'package:app/services/operacao_service.dart';
 import 'package:app/services/file_service.dart';
+import 'package:app/services/rotina.service.dart';
 import 'package:app/services/usuario_service.dart';
 import 'package:app/theme/preferencia_tema.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'core/widgets/auth_check.dart';
 import 'services/categoria_service.dart';
 
@@ -16,7 +16,8 @@ void main() async {
     ChangeNotifierProvider(create: (context) => UserService()),
     ChangeNotifierProvider(create: (context) => FileService()),
     ChangeNotifierProvider(create: (context) => OperacaoService()),
-    ChangeNotifierProvider(create: (context) => CategoriaService())
+    ChangeNotifierProvider(create: (context) => CategoriaService()),
+    ChangeNotifierProvider(create: (context) => RotinaService())
   ], child: const App()));
 }
 

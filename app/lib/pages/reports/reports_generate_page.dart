@@ -194,14 +194,14 @@ class _ReportGeneratePageState extends State<ReportGeneratePage> {
 
       if (index > 0) {
         ChartData chart =
-            ChartData(meses[item.dataReferencia!.month], item.valor);
+            ChartData(mesesAbreviado[item.dataReferencia!.month], item.valor);
         list[index].listData!.add(chart);
       } else {
         Report report = Report();
         report.name = item.titulo;
         report.listData = [];
         ChartData chart =
-            ChartData(meses[item.dataReferencia!.month], item.valor);
+            ChartData(mesesAbreviado[item.dataReferencia!.month], item.valor);
         report.listData!.add(chart);
         list.add(report);
       }

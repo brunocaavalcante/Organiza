@@ -27,7 +27,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   double total = 0;
   int? valueSelected;
   UserService? auth;
-  late DateTime data = DateTime.now();
+  DateTime data = DateTime.now();
   TextEditingController titulo = TextEditingController();
 
   @override

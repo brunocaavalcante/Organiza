@@ -53,9 +53,8 @@ class OperacaoService extends ChangeNotifier {
           .doc(item.id)
           .update(item.toJson())
           .catchError((error) => {
-                print(error),
                 throw CustomException(
-                    "ocorreu um erro ao atualizar tente novamente")
+                    "ocorreu um erro ao atualizar tente novamente", error)
               });
     }
   }

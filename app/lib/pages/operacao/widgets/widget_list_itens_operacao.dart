@@ -9,7 +9,7 @@ import '../../../services/usuario_service.dart';
 import '../detalhe_operacao_page.dart';
 
 class ListItensOperacao extends StatefulWidget {
-  DateTime? data;
+  DateTime data;
   ListItensOperacao({super.key, required this.data});
 
   @override
@@ -90,8 +90,8 @@ class _ListItensOperacaoState extends State<ListItensOperacao> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          DetalheOperacaoPage(operacao: operacao)));
+                      builder: (context) => DetalheOperacaoPage(
+                          operacao: operacao, dataRef: widget.data)));
             },
             trailing: Column(
               crossAxisAlignment: CrossAxisAlignment.end,

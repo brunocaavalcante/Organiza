@@ -10,10 +10,13 @@ import '../../core/masks.dart';
 import '../../models/custom_exception.dart';
 import '../../models/enums.dart';
 import '../../services/operacao_service.dart';
+import '../../services/rotina.service.dart';
 
 class DetalheOperacaoPage extends StatefulWidget {
   Operacao operacao;
-  DetalheOperacaoPage({super.key, required this.operacao});
+  DateTime dataRef;
+  DetalheOperacaoPage(
+      {super.key, required this.operacao, required this.dataRef});
 
   @override
   State<DetalheOperacaoPage> createState() => _DetalheOperacaoPageState();
@@ -130,8 +133,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
           context,
           MaterialPageRoute(
               builder: (context) => CadastroOperacaoPage(
-                  dataRef: widget.operacao.dataReferencia,
-                  operacao: widget.operacao)));
+                  dataRef: widget.dataRef, operacao: widget.operacao)));
     }));
   }
 
@@ -158,8 +160,8 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   }
 
   Function()? onPressExcluirOk(item) {
-    try {
-      return (() async {
+    return (() async {
+      try {
         if (AlertService.opSelecionada == 0) {
           await service!.excluir(item);
         }
@@ -174,12 +176,17 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
         Navigator.pop(context);
         Navigator.pop(context);
         setState(() {});
-      });
-    } on CustomException catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
-      return null;
-    }
+      } on CustomException catch (e) {
+        if (e.error!.code == "not-found") {
+          await Provider.of<RotinaService>(context, listen: false)
+              .verificaErroDataRefrencia(context, item, widget.dataRef!.month);
+        }
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
+        return null;
+      }
+    });
   }
 
   btnPagar() {
