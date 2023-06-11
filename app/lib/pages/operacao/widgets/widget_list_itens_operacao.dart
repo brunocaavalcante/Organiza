@@ -47,7 +47,7 @@ class _ListItensOperacaoState extends State<ListItensOperacao> {
     Stream<QuerySnapshot> _participanteStream = FirebaseFirestore.instance
         .collection('operacoes')
         .doc(auth!.usuario!.uid.toString())
-        .collection("${widget.data!.month}${widget.data!.year}")
+        .collection("${widget.data.month}${widget.data.year}")
         //.orderBy('DataCadastro', descending: true)
         .snapshots();
 

@@ -1,4 +1,4 @@
-import 'package:app/pages/operacao/cadastro_despes_page.dart';
+import 'package:app/pages/operacao/cadastro_operacao_page.dart';
 import 'package:app/services/alert_service.dart';
 import 'package:app/core/widgets/widget_ultil.dart';
 import 'package:app/models/operacao.dart';
@@ -109,10 +109,19 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
     return value != null && value != "" && value != "0"
         ? Row(children: [
             Icon(icon, color: Theme.of(context).hintColor),
-            SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-            Text(txt, style: const TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-            Text(value)
+            SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+            Wrap(children: [
+              SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.25,
+                  child: Text(txt,
+                      style: const TextStyle(fontWeight: FontWeight.bold)))
+            ]),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.03),
+            Wrap(children: [
+              SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.57,
+                  child: Text(value))
+            ])
           ])
         : Container();
   }
@@ -179,7 +188,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
       } on CustomException catch (e) {
         if (e.error!.code == "not-found") {
           await Provider.of<RotinaService>(context, listen: false)
-              .verificaErroDataRefrencia(context, item, widget.dataRef!.month);
+              .verificaErroDataRefrencia(context, item, widget.dataRef.month);
         }
 
         ScaffoldMessenger.of(context)
@@ -202,8 +211,19 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                     .atualizar(widget.operacao);
                 Navigator.pop(context);
               } on CustomException catch (e) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text(e.message)));
+                var sucesso = false;
+
+                if (e.error!.code == "not-found") {
+                  sucesso =
+                      await Provider.of<RotinaService>(context, listen: false)
+                          .verificaErroDataRefrencia(
+                              context, widget.operacao, widget.dataRef.month);
+                }
+
+                if (sucesso == false) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(e.message)));
+                }
                 return null;
               }
             }))

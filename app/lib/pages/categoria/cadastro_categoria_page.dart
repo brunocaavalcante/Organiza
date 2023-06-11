@@ -125,7 +125,7 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
       item.fontFamily = "MaterialIcons";
       item.icon = icon.codePoint;
       await Provider.of<CategoriaService>(context, listen: false).salvar(item);
-      Navigator.pop(context);
+      Navigator.pop(context, item);
     } on CustomException catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.message)));

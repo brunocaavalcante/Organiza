@@ -1,4 +1,4 @@
-import 'package:app/pages/operacao/cadastro_despes_page.dart';
+import 'package:app/pages/operacao/cadastro_operacao_page.dart';
 import 'package:app/pages/operacao/widgets/widget_list_itens_operacao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -173,7 +173,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                               color: Theme.of(context).colorScheme.onPrimary,
                               fontSize: 16)),
                     ]),
-                SizedBox(height: height * 0.02),
+                SizedBox(height: height * 0.01),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [

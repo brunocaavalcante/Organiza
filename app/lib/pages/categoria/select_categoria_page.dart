@@ -2,11 +2,11 @@ import 'package:app/pages/categoria/cadastro_categoria_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../core/widgets/widget_ultil.dart';
 import '../../models/categoria.dart';
 import '../../models/custom_exception.dart';
 import '../../services/categoria_service.dart';
+import '../../services/usuario_service.dart';
 
 class SelectCategoriaPage extends StatefulWidget {
   const SelectCategoriaPage({super.key});
@@ -16,17 +16,32 @@ class SelectCategoriaPage extends StatefulWidget {
 }
 
 class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
+  List<Categoria> categorias = [];
+  UserService? auth;
+
+  @override
+  void initState() {
+    super.initState();
+    carregarDados().then((_) {
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    auth = Provider.of<UserService>(context);
     return Scaffold(
         appBar: WidgetUltil.barWithArrowBackIos(context, "Categorias", null),
         body: containerMenu(),
         floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              var item = await Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => CadastroCategoriaPage()));
+              setState(() {
+                categorias.add(item);
+              });
             },
             tooltip: 'Add Categoria',
             child: const Icon(Icons.add)));
@@ -46,35 +61,54 @@ class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
   }
 
   itemHistorico() {
-    Stream<QuerySnapshot> _participanteStream = FirebaseFirestore.instance
+    return ListView.builder(
+        itemCount: categorias.length,
+        itemBuilder: (context, index) {
+          var item = categorias[index];
+          return SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: WidgetUltil.returnDimissibleExcluir(
+                  cardItem(item), dismissExcluirItem(item)));
+        });
+  }
+
+  Future<void> carregarDados() async {
+    await carregaCategoriasGerais();
+    await carregaCategoriaUsuario();
+  }
+
+  Future<void> carregaCategoriaUsuario() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('categorias-user')
+        .doc(auth!.auth.currentUser!.uid)
+        .collection("categorias")
+        .orderBy('descricao')
+        .get();
+
+    List<Categoria> categoriasCollection1 = querySnapshot.docs.map((document) {
+      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+      var item = Categoria().toEntity(data);
+      item.id = document.id;
+      return item;
+    }).toList();
+
+    categorias.addAll(categoriasCollection1);
+  }
+
+  Future<void> carregaCategoriasGerais() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('categorias')
         .orderBy('descricao')
-        .snapshots();
+        .get();
 
-    return StreamBuilder<QuerySnapshot>(
-        stream: _participanteStream,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return const Text('Erro!');
-          }
+    List<Categoria> categoriasCollection2 = querySnapshot.docs.map((document) {
+      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+      var item = Categoria().toEntity(data);
+      item.id = document.id;
+      return item;
+    }).toList();
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text("Carregando");
-          }
-          return ListView(
-            shrinkWrap: true,
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              Map<String, dynamic> data =
-                  document.data()! as Map<String, dynamic>;
-              var item = Categoria().toEntity(data);
-              item.id = document.id;
-              return SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: WidgetUltil.returnDimissibleExcluir(
-                      cardItem(item), dismissExcluirItem(item)));
-            }).toList(),
-          );
-        });
+    categorias.addAll(categoriasCollection2);
   }
 
   cardItem(Categoria item) {
