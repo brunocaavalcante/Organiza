@@ -5,6 +5,7 @@ import 'entity.dart';
 class Operacao extends Entity {
   String descricao = "";
   String titulo = "";
+  String urlComprovante = "";
   double valor = 0;
   Categoria? categoria;
   int? status;
@@ -28,6 +29,7 @@ class Operacao extends Entity {
       'dataReferencia': dataReferencia,
       'dataVencimento': dataVencimento,
       'id': id,
+      'urlComprovante': urlComprovante,
       'valor': valor,
       'totalParcelas': totalParcelas,
       'parcelaAtual': parcelaAtual,
@@ -46,6 +48,7 @@ class Operacao extends Entity {
     repetir = map['repetir'];
     afetarTotalizadores = map['afetarTotalizadores'] ?? true;
     tipoOperacao = map['tipoOperacao'];
+    urlComprovante = map['urlComprovante'] ?? '';
     status = map['status'];
     descricao = map['descricao'];
     titulo = map['titulo'] ?? '';

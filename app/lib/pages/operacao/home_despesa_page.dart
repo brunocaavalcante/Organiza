@@ -81,7 +81,6 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
             });
           },
           icon: Icon(Icons.arrow_back_ios, color: colorOnPrimary)),
-      const SizedBox(width: 15),
       Text("${mes[data.month]} ${data.year}",
           style: TextStyle(
               color: Theme.of(context).colorScheme.onPrimary,
@@ -129,7 +128,6 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
           return Container(
               width: width,
               height: height * 0.24,
-              padding: EdgeInsets.only(top: height * 0.01),
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
                   borderRadius: const BorderRadius.only(
@@ -139,12 +137,12 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                 Text("Balanço do Mês",
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimary,
-                        fontSize: 16)),
+                        fontSize: 14)),
                 SizedBox(height: height * 0.01),
                 Text("${FormatarMoeda.formatar(total)}",
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimary,
-                        fontSize: 23,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold)),
                 SizedBox(height: height * 0.01),
                 Row(
@@ -153,11 +151,11 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
                       Text("Receitas",
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 16)),
+                              fontSize: 14)),
                       Text("Despesas",
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 16)),
+                              fontSize: 14)),
                     ]),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -189,7 +187,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
     return Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
       Text(text,
           style: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimary, fontSize: 16)),
+              color: Theme.of(context).colorScheme.onPrimary, fontSize: 14)),
       Text("${FormatarMoeda.formatar(value)}",
           style: TextStyle(
               fontWeight: FontWeight.bold,

@@ -3,30 +3,17 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../services/file_service.dart';
 
-class FileWidget extends StatefulWidget {
-  String? urlImagem;
-  String? destino;
-  String? refImage;
-  FileWidget(
-      {super.key,
-      required this.urlImagem,
-      required this.destino,
-      required this.refImage});
-
-  @override
-  State<FileWidget> createState() => _FileWidgetState();
-}
-
-class _FileWidgetState extends State<FileWidget> {
+class FileUtil {
   UploadTask? task;
   File? file;
-  @override
-  Widget build(BuildContext context) {
-    return fieldPhoto();
-  }
+  String refImage = "";
+  String destino = "";
+  String? urlImagem;
+  BuildContext context;
+
+  FileUtil(this.context, this.urlImagem, this.destino, this.refImage);
 
   fieldPhoto() {
     return Container(
@@ -40,9 +27,8 @@ class _FileWidgetState extends State<FileWidget> {
                   height: 130,
                   clipBehavior: Clip.antiAlias,
                   decoration: const BoxDecoration(shape: BoxShape.circle),
-                  child: widget.urlImagem != null && widget.urlImagem != ''
-                      ? Image.network(widget.urlImagem as String,
-                          fit: BoxFit.cover)
+                  child: urlImagem != null && urlImagem != ''
+                      ? Image.network(urlImagem as String, fit: BoxFit.cover)
                       : containerImagem())),
           task != null ? buildUploadStatus(task!) : Container()
         ]));
@@ -54,10 +40,8 @@ class _FileWidgetState extends State<FileWidget> {
     if (result == null) return;
     final path = result.files.single.path!;
 
-    setState(() {
-      file = File(path);
-      uploadFile();
-    });
+    file = File(path);
+    await uploadFile();
   }
 
   Future uploadFile() async {
@@ -66,10 +50,10 @@ class _FileWidgetState extends State<FileWidget> {
     String destination = "";
     var id = DateTime.now().millisecondsSinceEpoch;
 
-    if (widget.refImage != "") {
-      destination = widget.refImage.toString();
+    if (refImage != "") {
+      destination = refImage.toString();
     } else {
-      destination = "${widget.destino}/$id";
+      destination = "${destino}/$id";
     }
 
     task = context.read<FileService>().uploadFile(destination, file!);
@@ -78,9 +62,8 @@ class _FileWidgetState extends State<FileWidget> {
 
     final snapshot = await task!.whenComplete(() {});
     final urlDownload = await snapshot.ref.getDownloadURL();
-    widget.urlImagem = urlDownload;
+    urlImagem = urlDownload;
     context.read<FileService>().destino = urlDownload;
-    setState(() {});
   }
 
   SizedBox containerImagem() {

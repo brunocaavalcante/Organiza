@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/date_ultils.dart';
 import '../../core/masks.dart';
-import '../../core/widgets/file_widget.dart';
+import '../../core/widgets/file_ultil.dart';
 import '../../models/custom_exception.dart';
 import '../../models/usuario.dart';
 import '../../services/file_service.dart';
@@ -52,10 +52,9 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
           key: formKey,
           child: Column(
             children: [
-              FileWidget(
-                  urlImagem: widget.user.photo,
-                  destino: 'usuarios',
-                  refImage: widget.user.refPhoto),
+              FileUtil(context, widget.user.photo, 'usuarios',
+                      widget.user.refPhoto)
+                  .fieldPhoto(),
               SizedBox(height: espaco),
               WidgetUltil.returnField(
                   "Nome: ", nome, TextInputType.name, null, ""),

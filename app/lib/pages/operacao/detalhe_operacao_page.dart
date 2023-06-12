@@ -1,4 +1,6 @@
+import 'package:app/core/widgets/file_ultil.dart';
 import 'package:app/pages/operacao/cadastro_operacao_page.dart';
+import 'package:app/pages/operacao/widgets/exibir_comprovante_widget.dart';
 import 'package:app/services/alert_service.dart';
 import 'package:app/core/widgets/widget_ultil.dart';
 import 'package:app/models/operacao.dart';
@@ -9,8 +11,10 @@ import '../../core/date_ultils.dart';
 import '../../core/masks.dart';
 import '../../models/custom_exception.dart';
 import '../../models/enums.dart';
+import '../../services/file_service.dart';
 import '../../services/operacao_service.dart';
 import '../../services/rotina.service.dart';
+import '../../services/usuario_service.dart';
 
 class DetalheOperacaoPage extends StatefulWidget {
   Operacao operacao;
@@ -25,6 +29,7 @@ class DetalheOperacaoPage extends StatefulWidget {
 class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   var valueSelected = 0;
   int parcelasPagas = 0;
+  bool anexar = false;
   OperacaoService? service;
 
   @override
@@ -101,6 +106,10 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                 Icons.file_copy_rounded)
           ])),
       SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+      if (widget.operacao.urlComprovante != "" &&
+          widget.operacao.status == Status.Pago.index)
+        btnVerComporvantePagamento(),
+      SizedBox(height: MediaQuery.of(context).size.height * 0.01),
       btnPagar()
     ]);
   }
@@ -198,38 +207,42 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
     });
   }
 
+  btnVerComporvantePagamento() {
+    return widget.operacao.status == Status.Pago.index
+        ? SizedBox(
+            width: MediaQuery.of(context).size.width * 0.85,
+            height: MediaQuery.of(context).size.height * 0.06,
+            child: WidgetUltil.returnButton(
+                "Ver comprovante pagamento",
+                Icons.remove_red_eye_sharp,
+                () => {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ExibirComprovanteWidget(
+                                  url: widget.operacao.urlComprovante)))
+                    },
+                Theme.of(context).colorScheme.inversePrimary))
+        : Container();
+  }
+
   btnPagar() {
     return widget.operacao.status == Status.Pendente.index
         ? SizedBox(
-            width: MediaQuery.of(context).size.width * 0.65,
-            height: MediaQuery.of(context).size.height * 0.09,
+            width: MediaQuery.of(context).size.width * 0.85,
+            height: MediaQuery.of(context).size.height * 0.06,
             child: WidgetUltil.returnButton(
                 "Marcar como paga.", Icons.check_circle, () async {
-              try {
-                widget.operacao.status = Status.Pago.index;
-                await Provider.of<OperacaoService>(context, listen: false)
-                    .atualizar(widget.operacao);
-                Navigator.pop(context);
-              } on CustomException catch (e) {
-                var sucesso = false;
-
-                if (e.error!.code == "not-found") {
-                  sucesso =
-                      await Provider.of<RotinaService>(context, listen: false)
-                          .verificaErroDataRefrencia(
-                              context, widget.operacao, widget.dataRef.month);
-                }
-
-                if (sucesso == false) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(e.message)));
-                }
-                return null;
-              }
-            }))
+              AlertService.alertConfirmAnexar(
+                  context,
+                  "Conta Paga!",
+                  "Deseja anexar comprovante de pagamento?",
+                  onPressedAnexar,
+                  onPressedCancelar);
+            }, Theme.of(context).colorScheme.inversePrimary))
         : SizedBox(
-            width: MediaQuery.of(context).size.width * 0.65,
-            height: MediaQuery.of(context).size.height * 0.09,
+            width: MediaQuery.of(context).size.width * 0.85,
+            height: MediaQuery.of(context).size.height * 0.06,
             child: WidgetUltil.returnButton(
                 "Marcar como pendente.", Icons.close_rounded, () async {
               try {
@@ -242,8 +255,54 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                     .showSnackBar(SnackBar(content: Text(e.message)));
                 return null;
               }
-            }, Theme.of(context).colorScheme.error.withOpacity(.9),
-                Theme.of(context).colorScheme.onError));
+            }, Theme.of(context).colorScheme.inversePrimary));
+  }
+
+  onPressedAnexar() async {
+    anexar = true;
+    await pagarConta();
+    Navigator.pop(context);
+  }
+
+  onPressedCancelar() async {
+    anexar = false;
+    await pagarConta();
+    Navigator.pop(context);
+  }
+
+  pagarConta() async {
+    try {
+      widget.operacao.status = Status.Pago.index;
+      var userId = context.read<UserService>().auth.currentUser!.uid;
+
+      if (anexar) {
+        var file = FileUtil(context, "", "comprovante/${userId}", "");
+        file.selectFile().then((value) async {
+          widget.operacao.urlComprovante = context.read<FileService>().destino;
+          await Provider.of<OperacaoService>(context, listen: false)
+              .atualizar(widget.operacao);
+        });
+      } else {
+        await Provider.of<OperacaoService>(context, listen: false)
+            .atualizar(widget.operacao);
+      }
+
+      setState(() {});
+    } on CustomException catch (e) {
+      var sucesso = false;
+
+      if (e.error!.code == "not-found") {
+        sucesso = await Provider.of<RotinaService>(context, listen: false)
+            .verificaErroDataRefrencia(
+                context, widget.operacao, widget.dataRef.month);
+      }
+
+      if (sucesso == false) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
+      }
+      return null;
+    }
   }
 
   retornQtdParcelasPagas() async {

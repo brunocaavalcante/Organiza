@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class AlertService {
   static int opSelecionada = 0;
-  static alertConfirm(BuildContext context, String title, String subtitle) {
+  static alertAviso(BuildContext context, String title, String subtitle) {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -23,6 +23,31 @@ class AlertService {
                 onPressed: () {},
                 icon: const Icon(Icons.close, size: 18),
                 label: const Text("OK"),
+              )
+            ]);
+      },
+    );
+  }
+
+  static alertConfirmAnexar(BuildContext context, String title, String subtitle,
+      Function()? onPressedAnexar, Function()? onPressedCancelar) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+            title: Text(title),
+            content: Text(subtitle),
+            actions: [
+              ElevatedButton.icon(
+                onPressed: onPressedCancelar,
+                icon: const Icon(Icons.close, size: 18),
+                label: const Text("Cancelar"),
+              ),
+              ElevatedButton.icon(
+                onPressed: onPressedAnexar,
+                icon: const Icon(Icons.file_present, size: 18),
+                label: const Text("Anexar"),
               )
             ]);
       },

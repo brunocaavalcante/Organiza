@@ -80,9 +80,12 @@ class WidgetUltil {
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(icon, color: textColor),
           Padding(
-              padding: const EdgeInsets.all(10.0),
-              child:
-                  Text(txt, style: TextStyle(fontSize: 15, color: textColor)))
+              padding: const EdgeInsets.only(top: 10, bottom: 10, left: 10),
+              child: Text(txt,
+                  style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: textColor)))
         ]));
   }
 
