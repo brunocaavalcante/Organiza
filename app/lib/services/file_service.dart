@@ -27,4 +27,13 @@ class FileService extends ChangeNotifier {
       throw CustomException("Ocorreu um erro " + e.message.toString());
     }
   }
+
+  excluirFile(String urlRef) {
+    try {
+      final ref = FirebaseStorage.instance.ref(urlRef);
+      ref.delete();
+    } on FirebaseException catch (e) {
+      throw CustomException("Ocorreu um erro " + e.message.toString());
+    }
+  }
 }

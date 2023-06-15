@@ -6,6 +6,7 @@ class Operacao extends Entity {
   String descricao = "";
   String titulo = "";
   String urlComprovante = "";
+  String refImage = "";
   double valor = 0;
   Categoria? categoria;
   int? status;
@@ -30,6 +31,7 @@ class Operacao extends Entity {
       'dataVencimento': dataVencimento,
       'id': id,
       'urlComprovante': urlComprovante,
+      'refImage': refImage,
       'valor': valor,
       'totalParcelas': totalParcelas,
       'parcelaAtual': parcelaAtual,
@@ -49,6 +51,7 @@ class Operacao extends Entity {
     afetarTotalizadores = map['afetarTotalizadores'] ?? true;
     tipoOperacao = map['tipoOperacao'];
     urlComprovante = map['urlComprovante'] ?? '';
+    refImage = map['refImage'] ?? '';
     status = map['status'];
     descricao = map['descricao'];
     titulo = map['titulo'] ?? '';

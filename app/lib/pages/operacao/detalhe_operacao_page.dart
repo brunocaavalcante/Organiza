@@ -168,6 +168,10 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
       } else {
         await Provider.of<OperacaoService>(context, listen: false)
             .excluir(item);
+
+        if (item.refImage != "")
+          await context.read<FileService>().excluirFile(item.refImage);
+
         Navigator.pop(context);
       }
       setState(() {});
@@ -182,6 +186,9 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
       try {
         if (AlertService.opSelecionada == 0) {
           await service!.excluir(item);
+
+          if (item.refImage != "")
+            await context.read<FileService>().excluirFile(item.refImage);
         }
         if (AlertService.opSelecionada == 1) {
           var listaExcluir =
@@ -189,6 +196,9 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
 
           for (var item in listaExcluir) {
             await service!.excluir(item);
+
+            if (item.refImage != "")
+              await context.read<FileService>().excluirFile(item.refImage);
           }
         }
         Navigator.pop(context);
@@ -247,6 +257,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                 "Marcar como pendente.", Icons.close_rounded, () async {
               try {
                 widget.operacao.status = Status.Pendente.index;
+                widget.operacao.urlComprovante = "";
                 await Provider.of<OperacaoService>(context, listen: false)
                     .atualizar(widget.operacao);
                 Navigator.pop(context);
@@ -276,15 +287,15 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
       var userId = context.read<UserService>().auth.currentUser!.uid;
 
       if (anexar) {
-        var file = FileUtil(context, "", "comprovante/${userId}", "");
+        var file = FileUtil(
+            context, "", "comprovante/${userId}", widget.operacao.refImage);
         file.selectFile().then((value) async {
           widget.operacao.urlComprovante = context.read<FileService>().destino;
-          await Provider.of<OperacaoService>(context, listen: false)
-              .atualizar(widget.operacao);
+          widget.operacao.refImage = context.read<FileService>().refImage;
+          await service!.atualizar(widget.operacao);
         });
       } else {
-        await Provider.of<OperacaoService>(context, listen: false)
-            .atualizar(widget.operacao);
+        await service!.atualizar(widget.operacao);
       }
 
       setState(() {});
