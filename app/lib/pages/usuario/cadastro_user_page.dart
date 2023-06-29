@@ -56,21 +56,27 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
                       widget.user.refPhoto)
                   .fieldPhoto(),
               SizedBox(height: espaco),
-              WidgetUltil.returnField(
-                  "Nome: ", nome, TextInputType.name, null, ""),
+              WidgetUltil.returnField("Nome: ", nome, TextInputType.name, null,
+                  "", false, validacaoSimples()),
               SizedBox(height: espaco),
               WidgetUltil.returnField(
                   "Telefone: ",
                   telefone,
                   TextInputType.phone,
-                  [Masks.telefoneFormatter, Masks.celularFormatter],
+                  [Masks.celularFormatter],
                   "(##) ##### - ####"),
               SizedBox(height: espaco),
-              WidgetUltil.returnField("Data Nascimento: ", dataNascimento,
-                  TextInputType.datetime, [Masks.dataFormatter], "##/##/####"),
-              SizedBox(height: espaco),
               WidgetUltil.returnField(
-                  "E-mail: ", email, TextInputType.emailAddress, null, ""),
+                  "Data Nascimento: ",
+                  dataNascimento,
+                  TextInputType.datetime,
+                  [Masks.dataFormatter],
+                  "##/##/####",
+                  false,
+                  validarDataVencimento()),
+              SizedBox(height: espaco),
+              WidgetUltil.returnField("E-mail: ", email,
+                  TextInputType.emailAddress, null, "", false, validarEmail()),
               SizedBox(height: espaco),
               widget.operacao.contains("Editar") ? Container() : fieldSenha(),
               SizedBox(height: espaco),
@@ -162,5 +168,42 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
           if (value != senha.text) return "Senhas diferentes!";
           return null;
         });
+  }
+
+//VALIDAÇÕES
+  String? Function(String?)? validacaoSimples() {
+    return (((value) {
+      if (value == "") {
+        if (value == null || value.isEmpty) return "Campo obrigatório";
+        return null;
+      }
+    }));
+  }
+
+  String? Function(String?)? validarDataVencimento() {
+    return (((value) {
+      if (value != null && value != "") {
+        DateTime? data = DateUltils.stringToDate(value);
+        if (data == null) return "Data de nascimento inválida";
+      }
+
+      if (value == "") return "Campo obrigatório";
+      return null;
+    }));
+  }
+
+  String? Function(String?)? validarEmail() {
+    return (((value) {
+      if (value == "") {
+        if (value == null || value.isEmpty) return "Campo obrigatório";
+        return null;
+      }
+
+      final RegExp regex =
+          RegExp(r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$');
+
+      bool valido = regex.hasMatch(value ?? "");
+      if (!valido) return "E-mail inválido";
+    }));
   }
 }

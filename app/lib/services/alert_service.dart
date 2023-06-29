@@ -16,13 +16,8 @@ class AlertService {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                icon: const Icon(Icons.close, size: 18),
-                label: const Text("Cancelar"),
-              ),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.close, size: 18),
-                label: const Text("OK"),
+                icon: const Icon(Icons.task_alt_sharp, size: 18),
+                label: const Text("Ok"),
               )
             ]);
       },

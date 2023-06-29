@@ -106,9 +106,9 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                 Icons.file_copy_rounded)
           ])),
       SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-      if (widget.operacao.urlComprovante != "" &&
-          widget.operacao.status == Status.Pago.index)
-        btnVerComporvantePagamento(),
+      btnVerComporvantePagamento(),
+      SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+      btnAnexarComprovante(),
       SizedBox(height: MediaQuery.of(context).size.height * 0.01),
       btnPagar()
     ]);
@@ -218,7 +218,8 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   }
 
   btnVerComporvantePagamento() {
-    return widget.operacao.status == Status.Pago.index
+    return widget.operacao.status == Status.Pago.index &&
+            widget.operacao.urlComprovante != ""
         ? SizedBox(
             width: MediaQuery.of(context).size.width * 0.85,
             height: MediaQuery.of(context).size.height * 0.06,
@@ -233,6 +234,21 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
                                   url: widget.operacao.urlComprovante)))
                     },
                 Theme.of(context).colorScheme.inversePrimary))
+        : Container();
+  }
+
+  btnAnexarComprovante() {
+    return widget.operacao.urlComprovante == "" &&
+            widget.operacao.status == Status.Pago.index
+        ? SizedBox(
+            width: MediaQuery.of(context).size.width * 0.85,
+            height: MediaQuery.of(context).size.height * 0.06,
+            child: WidgetUltil.returnButton(
+                "Anexar comprovante de pagamento", Icons.file_present_outlined,
+                () async {
+              anexar = true;
+              await pagarConta();
+            }, Theme.of(context).colorScheme.inversePrimary))
         : Container();
   }
 
@@ -290,14 +306,17 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
         var file = FileUtil(
             context, "", "comprovante/${userId}", widget.operacao.refImage);
         file.selectFile().then((value) async {
-          widget.operacao.urlComprovante = context.read<FileService>().destino;
-          widget.operacao.refImage = context.read<FileService>().refImage;
+          setState(() {
+            widget.operacao.urlComprovante =
+                context.read<FileService>().destino;
+            widget.operacao.refImage = context.read<FileService>().refImage;
+          });
+
           await service!.atualizar(widget.operacao);
         });
       } else {
         await service!.atualizar(widget.operacao);
       }
-
       setState(() {});
     } on CustomException catch (e) {
       var sucesso = false;

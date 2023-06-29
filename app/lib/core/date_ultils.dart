@@ -16,8 +16,12 @@ class DateUltils {
   }
 
   static DateTime? stringToDate(String? data) {
-    return data != null && data != ""
-        ? DateFormat('dd/MM/yyyy').parse(data)
-        : null;
+    try {
+      return data != null && data != ""
+          ? DateFormat('dd/MM/yyyy').parse(data)
+          : null;
+    } catch (Exception) {
+      return null;
+    }
   }
 }

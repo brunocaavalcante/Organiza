@@ -114,8 +114,8 @@ class OperacaoService extends ChangeNotifier {
               operacao.id = element.id;
               list.add(operacao);
             }
-            mes += 1;
           }
+          mes += 1;
         });
       }
     }

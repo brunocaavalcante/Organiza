@@ -59,13 +59,13 @@ class _ReportGeneratePageState extends State<ReportGeneratePage> {
         .doc(auth!.usuario!.uid.toString())
         .collection("$month${DateTime.now().year}")
         .snapshots();
-    var teste;
+
     if (widget.report.tipo!.id == 3) {
       //queryStream.
     }
 
-    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        stream: teste,
+    /*return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        stream: queryStream,
         builder: (BuildContext context,
             AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
           if (snapshot.hasError) {
@@ -75,12 +75,12 @@ class _ReportGeneratePageState extends State<ReportGeneratePage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          var t = snapshot.data!.data();
+          //var t = snapshot.data!.data();
           return Container(); //gerarRelatorio(snapshot);
-        });
+        });*/
 
     return StreamBuilder<QuerySnapshot>(
-        stream: teste,
+        stream: queryStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return const Text('Algo deu errado.');
@@ -132,9 +132,11 @@ class _ReportGeneratePageState extends State<ReportGeneratePage> {
       data["Id"] = element.id;
       var item = Operacao().toEntity(data);
 
-      if (item.tipoOperacao == TipoOperacao.Recibo.index) {
+      if (item.tipoOperacao == TipoOperacao.Recibo.index &&
+          item.afetarTotalizadores) {
         totalReceita += item.valor;
-      } else if (item.tipoOperacao == TipoOperacao.Despesa.index) {
+      } else if (item.tipoOperacao == TipoOperacao.Despesa.index &&
+          item.afetarTotalizadores) {
         totalDespesa += item.valor;
       }
     }
