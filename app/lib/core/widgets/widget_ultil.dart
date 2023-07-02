@@ -107,9 +107,7 @@ class WidgetUltil {
   static customRadioButton(String text, int index, Color color,
       [Function()? onpressed, IconData? icon]) {
     return OutlinedButton.icon(
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: color),
-        ),
+        style: OutlinedButton.styleFrom(side: BorderSide(color: color)),
         onPressed: onpressed,
         icon: icon == null
             ? const SizedBox(width: 0, height: 0)

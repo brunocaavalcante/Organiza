@@ -103,6 +103,8 @@ class UserService extends ChangeNotifier {
         throw CustomException('Email não encontrado. Cadastre-se.');
       } else if (e.code == 'wrong-password') {
         throw CustomException('Senha incorreta. Tente novamente');
+      } else if (e.code == 'invalid-email') {
+        throw CustomException('E-mail no formato inválido');
       }
     }
   }
