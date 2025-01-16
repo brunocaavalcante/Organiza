@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "1087304054808",
+    "project_id": "organiza-36a3e",
+    "storage_bucket": "organiza-36a3e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1087304054808:android:910bcd57b5acb62ee5eb6d",
+        "android_client_info": {
+          "package_name": "com.example.organiza2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1087304054808-t0qs4c13t9hqlkan87q8l8snnar68l4g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH-vdQMUxy03cA0beU1k3cyh-tDi-iDlY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1087304054808-t0qs4c13t9hqlkan87q8l8snnar68l4g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1087304054808:android:e6c1f0393ab23e15e5eb6d",
+        "android_client_info": {
+          "package_name": "com.on.organiza"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1087304054808-t0qs4c13t9hqlkan87q8l8snnar68l4g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH-vdQMUxy03cA0beU1k3cyh-tDi-iDlY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1087304054808-t0qs4c13t9hqlkan87q8l8snnar68l4g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

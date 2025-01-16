@@ -1,0 +1,207 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:organiza2/app/core/models/enums.dart';
+import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
+import 'package:organiza2/app/core/models/report/chartdata.dart';
+import 'package:organiza2/app/core/models/report/report.dart';
+import 'package:organiza2/app/core/services/alert_service.dart';
+import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
+import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
+import 'package:organiza2/app/modules/reports/report_historico_operacao.dart';
+import 'package:organiza2/app/modules/reports/report_pizza.dart';
+
+class HomeReportPage extends StatefulWidget {
+  const HomeReportPage({super.key});
+
+  @override
+  State<HomeReportPage> createState() => _HomeReportPageState();
+}
+
+class _HomeReportPageState extends State<HomeReportPage> {
+  final UserService auth = Modular.get<UserService>();
+  final OperacaoService opService = Modular.get<OperacaoService>();
+  int monthReportDesRec = DateTime.now().month;
+  int monthReportCategoria = DateTime.now().month;
+  int monthReportOperacao = DateTime.now().month;
+  late ColorScheme colorScheme;
+  late Size size;
+
+  @override
+  Widget build(BuildContext context) {
+    colorScheme = Theme.of(context).colorScheme;
+    size = MediaQuery.of(context).size;
+
+    return Scaffold(body: ListView(children: [body()]));
+  }
+
+  body() {
+    return Container(
+        margin: EdgeInsets.only(top: size.height * 0.03),
+        width: size.width,
+        child: Column(children: [
+          relatorioDespezaOperacao(),
+          relatorioDespezaCategoria(),
+          const RepotHistoricoOperacao()
+        ]));
+  }
+
+//REGION REPORTS DESPESA X RECEITAS
+  List<ChartData> despesaXreceita(AsyncSnapshot<QuerySnapshot> lista) {
+    List<ChartData> retorno = [];
+    double totalDespesa = 0;
+    double totalReceita = 0;
+
+    for (var element in lista.data!.docs) {
+      Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
+      data["Id"] = element.id;
+      var item = Operacao().toEntity(data);
+
+      if (item.tipoOperacao == TipoOperacao.Recibo.index &&
+          item.afetarTotalizadores) {
+        totalReceita += item.valor;
+      } else if (item.tipoOperacao == TipoOperacao.Despesa.index &&
+          item.afetarTotalizadores) {
+        totalDespesa += item.valor;
+      }
+    }
+    var depesa = ChartData(
+        "Despesas", totalDespesa, Theme.of(context).colorScheme.error);
+
+    var receita = ChartData("Receitas", totalReceita, Colors.blue);
+
+    retorno.add(receita);
+    retorno.add(depesa);
+    return retorno;
+  }
+
+  relatorioDespezaOperacao() {
+    var queryStream = FirebaseFirestore.instance
+        .collection('operacoes')
+        .doc(auth!.usuario.value!.uid.toString())
+        .collection("$monthReportDesRec${DateTime.now().year}")
+        .snapshots();
+
+    return Column(children: [
+      Container(
+          margin: const EdgeInsets.only(top: 10, bottom: 2),
+          width: size.width,
+          color: colorScheme.primaryContainer,
+          height: size.height * 0.07,
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            Text("Relatório receitas X despezas",
+                style: TextStyle(
+                    fontSize: size.width * 0.035, fontWeight: FontWeight.bold)),
+            OutlinedButton.icon(
+                onPressed: () {
+                  AlertService.alertSelect(
+                          context, "Meses", null, mes, () => null)
+                      .then((valueFromDialog) {
+                    monthReportDesRec = valueFromDialog ?? monthReportDesRec;
+                    setState(() {});
+                  });
+                },
+                icon: const Icon(Icons.calendar_month),
+                label: Text("${mes[monthReportDesRec]}/${DateTime.now().year}",
+                    style: const TextStyle(fontSize: 16)))
+          ])),
+      SizedBox(
+          width: size.width * 0.9,
+          height: size.height * 0.35,
+          child: StreamBuilder<QuerySnapshot>(
+              stream: queryStream,
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return const Text('Algo deu errado.');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                var relatorio = Report();
+                relatorio.listData = despesaXreceita(snapshot);
+                return ReportPizza(report: relatorio);
+              }))
+    ]);
+  }
+
+//REGION REPORTS CATEGORIA
+  relatorioDespezaCategoria() {
+    var queryStream = FirebaseFirestore.instance
+        .collection('operacoes')
+        .doc(auth!.usuario.value!.uid.toString())
+        .collection("$monthReportCategoria${DateTime.now().year}")
+        .snapshots();
+
+    return Column(children: [
+      Container(
+          margin: const EdgeInsets.only(top: 10, bottom: 2),
+          width: size.width,
+          color: colorScheme.primaryContainer,
+          height: size.height * 0.07,
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            Text("Relatório despezas por categorias",
+                style: TextStyle(
+                    fontSize: size.width * 0.035, fontWeight: FontWeight.bold)),
+            OutlinedButton.icon(
+                onPressed: () {
+                  AlertService.alertSelect(
+                          context, "Meses", null, mes, () => null)
+                      .then((valueFromDialog) {
+                    monthReportCategoria =
+                        valueFromDialog ?? monthReportCategoria;
+                    setState(() {});
+                  });
+                },
+                icon: const Icon(Icons.calendar_month),
+                label: Text(
+                    "${mes[monthReportCategoria]}/${DateTime.now().year}",
+                    style: const TextStyle(fontSize: 16)))
+          ])),
+      SizedBox(
+          width: size.width * 0.95,
+          height: size.height * 0.50,
+          child: StreamBuilder<QuerySnapshot>(
+              stream: queryStream,
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return const Text('Algo deu errado.');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                var relatorio = Report();
+                relatorio.listData = obtemListaCategoria(snapshot);
+                return ReportPizza(report: relatorio);
+              }))
+    ]);
+  }
+
+  List<ChartData> obtemListaCategoria(AsyncSnapshot<QuerySnapshot> snapshot) {
+    List<ChartData> lista = [];
+    for (var element in snapshot.data!.docs) {
+      Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
+      data["Id"] = element.id;
+      var operacao = Operacao().toEntity(data);
+
+      if (operacao.tipoOperacao == TipoOperacao.Recibo.index) continue;
+
+      if (lista.any(
+          (element) => element.text.contains(operacao.categoria!.descricao))) {
+        int index = lista.indexWhere((element) =>
+            element.text.contains((operacao.categoria!.descricao)));
+        lista[index].value += operacao.valor;
+      } else {
+        var item = ChartData(operacao.categoria!.descricao, operacao.valor,
+            Color(operacao.categoria!.color));
+        lista.add(item);
+      }
+    }
+    return lista;
+  }
+}
