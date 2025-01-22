@@ -82,7 +82,30 @@ class _AprovacaoOperacaoState extends State<AprovacaoOperacao>
                     },
                   ),
                 ),
-                Center(child: Container())
+                Center(
+                  child: StreamBuilder<List<OperacaoShared>>(
+                    stream: _controller.buscarHistoricoOperacoesCompartilhada(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return const Center(
+                            child: Text("Erro ao carregar dados"));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                            child: Text("Nenhuma operação encontrada"));
+                      } else {
+                        return ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            var operacao = snapshot.data![index];
+                            return AproveItemCad(op: operacao);
+                          },
+                        );
+                      }
+                    },
+                  ),
+                ),
               ]))
         ]));
   }

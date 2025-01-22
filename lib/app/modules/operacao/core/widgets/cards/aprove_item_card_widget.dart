@@ -6,6 +6,7 @@ import 'package:organiza2/app/core/utils/date_ultils.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
 import 'package:organiza2/app/modules/operacao/controller/operacao_shared_controller.dart';
 import 'package:organiza2/app/modules/operacao/core/models/operacao_shared.dart';
+import 'package:organiza2/app/modules/operacao/core/widgets/bottom_sheet/phone_input_bottom_sheet.dart';
 import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
 
 class AproveItemCad extends StatelessWidget {
@@ -94,6 +95,22 @@ class AproveItemCad extends StatelessWidget {
                 ),
               ],
             ),
+            Row(
+              children: [
+                const Text(
+                  'Data Cadastro',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  DateUltils.formatarData(op.dataCadastro),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ],
+            ),
             // Linha de status e valor
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -126,6 +143,7 @@ class AproveItemCad extends StatelessWidget {
                 ),
               ],
             ),
+            rowMotivo(context),
             // Linha divisória
             Container(
               height: 1,
@@ -136,6 +154,24 @@ class AproveItemCad extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget rowMotivo(BuildContext context) {
+    if (op.status != Status.Recusada.index) return const SizedBox.shrink();
+    return Row(
+      children: [
+        const Text(
+          'Motivo',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(width: 8),
+        Text(op.justificativa,
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ))
+      ],
     );
   }
 
@@ -156,6 +192,9 @@ class AproveItemCad extends StatelessWidget {
   }
 
   Widget rowBtns(BuildContext context) {
+    if (op.status == Status.Aprovado.index ||
+        op.status == Status.Recusada.index) return const SizedBox.shrink();
+
     if (op.idProprietario == userService.usuario.value!.uid) {
       return Row(mainAxisAlignment: MainAxisAlignment.end, children: [
         ElevatedButton.icon(
@@ -183,7 +222,9 @@ class AproveItemCad extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             minimumSize: const Size(60, 30),
           ),
-          onPressed: () {},
+          onPressed: () {
+            BottomSheetUtil.showRecusaInputBottomSheet(context, op);
+          },
           icon: const Icon(Icons.close, size: 15),
           label: const Text("RECUSAR", style: TextStyle(fontSize: 12)),
         ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:get/get.dart';
 import 'package:organiza2/app/core/controllers/base_controller.dart';
 import 'package:organiza2/app/core/models/custom_exception.dart';
 import 'package:organiza2/app/core/models/enums.dart';
@@ -24,6 +23,14 @@ class OperacaoSharedController extends BaseController {
     }
   }
 
+  Stream<List<OperacaoShared>> buscarHistoricoOperacoesCompartilhada() {
+    try {
+      return _service.buscarHistoricoOperacoesCompartilhada();
+    } catch (e) {
+      throw CustomException("ocorreu um erro ao cadastrar tente novamente $e");
+    }
+  }
+
   Future excluirOperacaoCompartilhada(
       OperacaoShared op, BuildContext context) async {
     try {
@@ -31,12 +38,20 @@ class OperacaoSharedController extends BaseController {
       Navigator.pop(context);
       AlertService.alertaSucess(context);
     } catch (e) {
-      Get.snackbar(
-        'Ocorreu um erro ao realizar a operação, tente novamente.',
-        "$e",
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      throw CustomException("ocorreu um erro ao excluir tente novamente $e");
+      AlertService.alertErro(
+          context, "Ocorreu um erro ao realizar operação: $e");
+    }
+  }
+
+  Future editarOperacaoCompartilhada(
+      OperacaoShared op, BuildContext context) async {
+    try {
+      await _service.editar(op);
+      AlertService.alertaSucess(context);
+      Navigator.pop(context);
+    } catch (e) {
+      AlertService.alertErro(
+          context, "Ocorreu um erro ao realizar operação: $e");
     }
   }
 
@@ -71,12 +86,8 @@ class OperacaoSharedController extends BaseController {
             context, "Alerta", "O destinatário não foi encontrado");
       }
     } catch (e) {
-      Get.snackbar(
-        'Ocorreu um erro ao realizar a operação, tente novamente.',
-        "$e",
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      throw CustomException("ocorreu um erro ao salvar tente novamente $e");
+       AlertService.alertErro(
+          context, "Ocorreu um erro ao realizar operação: $e");
     }
   }
 
@@ -92,6 +103,10 @@ class OperacaoSharedController extends BaseController {
         } else {
           await _operacaoService.salvar(operacao);
         }
+
+        op.status = Status.Aprovado.index;
+        await _service.editar(op);
+
         AlertService.alertaSucess(context);
       } else {
         AlertService.alertAviso(context, "Alerta", "Operação não encontrada");

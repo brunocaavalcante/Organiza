@@ -1,10 +1,11 @@
-enum Status { Pago, Pendente, PendenteAprovacao, Recusada }
+enum Status { Pago, Pendente, PendenteAprovacao, Recusada, Aprovado }
 
 const List<String> statusDescricoes = [
   'Pago',
   'Pendente',
   'Pendente Aprovação',
-  'Recusada'
+  'Recusada',
+  'Aprovado'
 ];
 
 enum TipoOperacao { Nenhum, Despesa, Recibo, Emprestimo }

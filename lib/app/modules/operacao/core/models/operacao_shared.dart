@@ -15,6 +15,7 @@ class OperacaoShared extends Entity {
   String idOperacao = "";
   String imgProprietario = "";
   String imgDestinatario = "";
+  String justificativa = "";
 
   Map<String, Object?> toJson() {
     return {
@@ -35,7 +36,8 @@ class OperacaoShared extends Entity {
       'imgProprietario': imgProprietario,
       'imgDestinatario': imgDestinatario,
       'totalParcelas': totalParcelas,
-      'idOperacao': idOperacao
+      'idOperacao': idOperacao,
+      'justificativa': justificativa,
     };
   }
 
@@ -54,6 +56,7 @@ class OperacaoShared extends Entity {
     imgProprietario = map['imgProprietario'] ?? '';
     imgDestinatario = map['imgDestinatario'] ?? '';
     totalParcelas = map['totalParcelas'] ?? 0;
+    justificativa = map['justificativa'] ?? '';
     return this;
   }
 }

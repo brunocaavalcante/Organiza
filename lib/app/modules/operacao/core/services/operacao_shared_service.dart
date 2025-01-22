@@ -10,7 +10,7 @@ class OperacaoSharedService extends ChangeNotifier {
   FirebaseAuth auth = FirebaseAuth.instance;
   CollectionReference operacaoShared =
       FirebaseFirestore.instance.collection('operacoes-compartilhadas');
-  
+
   CollectionReference operacao =
       FirebaseFirestore.instance.collection('operacoes');
 
@@ -50,11 +50,55 @@ class OperacaoSharedService extends ChangeNotifier {
     });
   }
 
+  Stream<List<OperacaoShared>> buscarHistoricoOperacoesCompartilhada() {
+    String userId = auth.currentUser?.uid ?? '';
+
+    return operacaoShared
+        .where('status', isNotEqualTo: Status.PendenteAprovacao.index)
+        .where('idProprietario', isEqualTo: userId)
+        .snapshots()
+        .asyncMap((proprietarioSnapshot) async {
+      List<OperacaoShared> list = [];
+
+      for (var element in proprietarioSnapshot.docs) {
+        Map<String, dynamic> data = element.data() as Map<String, dynamic>;
+        var operacao = OperacaoShared().toEntity(data);
+        operacao.id = element.id;
+        list.add(operacao);
+      }
+
+      // Busca operações do destinatário e evita duplicados
+      QuerySnapshot destinatarioSnapshot = await operacaoShared
+          .where('status', isNotEqualTo: Status.PendenteAprovacao.index)
+          .where('idDestinatario', isEqualTo: userId)
+          .get();
+
+      for (var element in destinatarioSnapshot.docs) {
+        if (!list.any((op) => op.id == element.id)) {
+          Map<String, dynamic> data = element.data() as Map<String, dynamic>;
+          var operacao = OperacaoShared().toEntity(data);
+          operacao.id = element.id;
+          list.add(operacao);
+        }
+      }
+
+      return list;
+    });
+  }
+
   salvar(OperacaoShared item) async {
     if (auth.currentUser != null) {
       await operacaoShared.add(item.toJson()).catchError((error) =>
           throw CustomException(
               "ocorreu um erro ao cadastrar tente novamente"));
+    }
+  }
+
+  editar(OperacaoShared item) async {
+    if (auth.currentUser != null) {
+      await operacaoShared.doc(item.id).update(item.toJson()).catchError(
+          (error) => throw CustomException(
+              "ocorreu um erro ao editar tente novamente"));
     }
   }
 
