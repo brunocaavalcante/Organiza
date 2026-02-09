@@ -53,6 +53,10 @@ class UserService {
 
   registrar(Usuario usuario) async {
     try {
+      if (usuario.email == null || usuario.senha == null) {
+        throw CustomException('Email e senha são obrigatórios');
+      }
+      
       var result = await auth.createUserWithEmailAndPassword(
           email: usuario.email!, password: usuario.senha!);
 
@@ -88,9 +92,13 @@ class UserService {
         throw CustomException('As senhas são diferentes!');
       }
       var user = auth.currentUser;
-      user?.updateDisplayName(usuario.name);
-      user?.updatePhotoURL(usuario.photo);
-      usuario.id = user!.uid;
+      if (user == null) {
+        throw CustomException('Usuário não está logado');
+      }
+      
+      user.updateDisplayName(usuario.name);
+      user.updatePhotoURL(usuario.photo);
+      usuario.id = user.uid;
       if (auth.currentUser != null) {
         await users.doc(usuario.id).update(usuario.toJson()).catchError(
             (error) => throw CustomException(

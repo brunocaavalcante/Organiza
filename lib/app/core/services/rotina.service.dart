@@ -9,13 +9,16 @@ class RotinaService extends ChangeNotifier {
   final _operacaoService = Modular.get<OperacaoService>();
   //Issue 3 Rotina verifica erro data de Referencia operação
   verificaErroDataRefrencia(Operacao op, int mesCollection) async {
-    if (op.dataReferencia!.month != mesCollection) {
+    final dataRef = op.dataReferencia;
+    if (dataRef == null) return false;
+    
+    if (dataRef.month != mesCollection) {
       try {
-        op.dataReferencia = DateTime(op.dataReferencia!.year, mesCollection, 1);
+        op.dataReferencia = DateTime(dataRef.year, mesCollection, 1);
         await _operacaoService.atualizar(op);
 
         return true;
-      } on CustomException catch (ex) {
+      } on CustomException {
         return false;
       }
     }

@@ -92,10 +92,15 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   }
 
   containerTop() {
+    final userId = auth.usuario.value?.uid;
+    if (userId == null) {
+      return const Center(child: Text('Usuário não está logado'));
+    }
+    
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('operacoes')
-            .doc(auth!.usuario.value!.uid.toString())
+            .doc(userId.toString())
             .collection("${data.month}${data.year}")
             .orderBy('status')
             .snapshots(),

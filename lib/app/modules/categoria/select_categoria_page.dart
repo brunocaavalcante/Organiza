@@ -78,9 +78,14 @@ class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
   }
 
   Future<void> carregaCategoriaUsuario() async {
+    final currentUser = auth.auth.currentUser;
+    if (currentUser == null) {
+      throw CustomException('Usuário não está logado');
+    }
+    
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('categorias-user')
-        .doc(auth!.auth.currentUser!.uid)
+        .doc(currentUser.uid)
         .collection("categorias")
         .orderBy('descricao')
         .get();

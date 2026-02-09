@@ -10,5 +10,6 @@ String? Function(String?)? validarEmail() {
 
     bool valido = regex.hasMatch(value ?? "");
     if (!valido) return "E-mail inválido";
+    return null;
   }));
 }

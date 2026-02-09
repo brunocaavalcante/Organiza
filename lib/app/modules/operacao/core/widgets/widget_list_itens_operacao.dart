@@ -42,9 +42,14 @@ class _ListItensOperacaoState extends State<ListItensOperacao> {
   }
 
   itemHistorico() {
+    final userId = auth.usuario.value?.uid;
+    if (userId == null) {
+      return const Center(child: Text('Usuário não está logado'));
+    }
+    
     Stream<QuerySnapshot> _participanteStream = FirebaseFirestore.instance
         .collection('operacoes')
-        .doc(auth!.usuario.value!.uid.toString())
+        .doc(userId.toString())
         .collection("${widget.data.month}${widget.data.year}")
         .orderBy('status', descending: true)
         .snapshots();

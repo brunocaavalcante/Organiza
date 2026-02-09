@@ -52,8 +52,14 @@ class _RepotHistoricoOperacaoState extends State<RepotHistoricoOperacao>
   //REGION REPORTS OPERACAO
 
   carregaListaOperacao() async {
-    final operacoes = await opService!.buscarOperacoesPorData(
-        DateUltils.stringToDate(de.text)!, DateUltils.stringToDate(ate.text)!);
+    final dataInicio = DateUltils.stringToDate(de.text);
+    final dataFim = DateUltils.stringToDate(ate.text);
+    
+    if (dataInicio == null || dataFim == null) {
+      throw Exception('Datas inválidas');
+    }
+    
+    final operacoes = await opService.buscarOperacoesPorData(dataInicio, dataFim);
 
     await Future.delayed(const Duration(seconds: 2), () {
       setState(() {
@@ -137,8 +143,12 @@ class _RepotHistoricoOperacaoState extends State<RepotHistoricoOperacao>
         return "Data fornecida é inválida.";
       }
       if (de.text != "" && ate.text != "") {
-        var dataInicio = DateUltils.stringToDate(de.text)!;
-        var dataFim = DateUltils.stringToDate(ate.text)!;
+        var dataInicio = DateUltils.stringToDate(de.text);
+        var dataFim = DateUltils.stringToDate(ate.text);
+        
+        if (dataInicio == null || dataFim == null) {
+          return "Datas fornecidas são inválidas.";
+        }
 
         if (dataFim.isBefore(dataInicio)) {
           return "A data de início não deve ser maior que a data final.";
@@ -165,6 +175,8 @@ class _RepotHistoricoOperacaoState extends State<RepotHistoricoOperacao>
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return const Center(child: Text('Erro ao carregar os dados'));
+              } else if (snapshot.data == null) {
+                return const Center(child: Text('Nenhum dado encontrado'));
               } else {
                 return ListView.builder(
                     itemCount: snapshot.data!.length,

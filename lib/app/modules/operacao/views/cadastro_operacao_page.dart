@@ -168,6 +168,7 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
         if (value == null || value.isEmpty) return "Campo obrigatório";
         return null;
       }
+      return null;
     }));
   }
 

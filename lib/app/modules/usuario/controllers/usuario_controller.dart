@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get/get.dart';
 import 'package:organiza2/app/core/controllers/base_controller.dart';
-import 'package:organiza2/app/core/services/alert_service.dart';
 import 'package:organiza2/app/core/utils/date_ultils.dart';
 import 'package:organiza2/app/core/models/custom_exception.dart';
 import 'package:organiza2/app/core/services/file_service.dart';
@@ -30,13 +29,9 @@ class UsuarioController extends BaseController {
     loading.value = true;
     try {
       await _usuarioService.login(email.text, senha.text);
-    } on CustomException catch (e) {
+    } catch (e) {
       loading.value = false;
-      Get.snackbar(
-        'Erro de Login',
-        e.message,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      rethrow; // Relança a exceção para ser tratada na UI
     } finally {
       loading.value = false;
     }
@@ -45,10 +40,9 @@ class UsuarioController extends BaseController {
   Future<void> logout() async {
     try {
       await _usuarioService.logout();
-    } on CustomException catch (e) {
+    } catch (e) {
       loading.value = false;
-      Get.snackbar('Erro de Logout', e.message,
-          snackPosition: SnackPosition.BOTTOM);
+      rethrow;
     }
   }
 
@@ -86,13 +80,9 @@ class UsuarioController extends BaseController {
   Future<Usuario?> obterUsuario() async {
     try {
       return await _usuarioService.obterUsuario();
-    } on CustomException catch (e) {
+    } catch (e) {
       loading.value = false;
-      Get.snackbar(
-        'Erro de Login',
-        e.message,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      return null;
     } finally {
       loading.value = false;
     }
@@ -109,13 +99,9 @@ class UsuarioController extends BaseController {
     try {
       await _usuarioService.atualizarPreferencia(theme.value);
       PreferenciaTema.setTema(theme.value);
-    } on CustomException catch (e) {
+    } catch (e) {
       loading.value = false;
-      Get.snackbar(
-        'Erro de Login',
-        e.message,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      rethrow; // Relança para tratamento na UI
     }
   }
 }

@@ -145,6 +145,7 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
         if (value == null || value.isEmpty) return "Campo obrigatório";
         return null;
       }
+      return null;
     }));
   }
 

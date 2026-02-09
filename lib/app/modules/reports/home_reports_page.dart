@@ -52,8 +52,15 @@ class _HomeReportPageState extends State<HomeReportPage> {
     double totalDespesa = 0;
     double totalReceita = 0;
 
+    if (lista.data == null) {
+      return retorno;
+    }
+
     for (var element in lista.data!.docs) {
-      Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
+      final docData = element.data();
+      if (docData == null) continue;
+      
+      Map<String, dynamic> data = docData as Map<String, dynamic>;
       data["Id"] = element.id;
       var item = Operacao().toEntity(data);
 
@@ -76,9 +83,14 @@ class _HomeReportPageState extends State<HomeReportPage> {
   }
 
   relatorioDespezaOperacao() {
+    final userId = auth.usuario.value?.uid;
+    if (userId == null) {
+      return const Center(child: Text('Usuário não está logado'));
+    }
+    
     var queryStream = FirebaseFirestore.instance
         .collection('operacoes')
-        .doc(auth!.usuario.value!.uid.toString())
+        .doc(userId.toString())
         .collection("$monthReportDesRec${DateTime.now().year}")
         .snapshots();
 
@@ -129,9 +141,14 @@ class _HomeReportPageState extends State<HomeReportPage> {
 
 //REGION REPORTS CATEGORIA
   relatorioDespezaCategoria() {
+    final userId = auth.usuario.value?.uid;
+    if (userId == null) {
+      return const Center(child: Text('Usuário não está logado'));
+    }
+    
     var queryStream = FirebaseFirestore.instance
         .collection('operacoes')
-        .doc(auth!.usuario.value!.uid.toString())
+        .doc(userId.toString())
         .collection("$monthReportCategoria${DateTime.now().year}")
         .snapshots();
 
@@ -184,12 +201,22 @@ class _HomeReportPageState extends State<HomeReportPage> {
 
   List<ChartData> obtemListaCategoria(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<ChartData> lista = [];
+    
+    if (snapshot.data == null) {
+      return lista;
+    }
+    
     for (var element in snapshot.data!.docs) {
-      Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
+      final docData = element.data();
+      if (docData == null) continue;
+      
+      Map<String, dynamic> data = docData as Map<String, dynamic>;
       data["Id"] = element.id;
       var operacao = Operacao().toEntity(data);
 
       if (operacao.tipoOperacao == TipoOperacao.Recibo.index) continue;
+      
+      if (operacao.categoria == null) continue;
 
       if (lista.any(
           (element) => element.text.contains(operacao.categoria!.descricao))) {
