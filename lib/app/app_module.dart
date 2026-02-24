@@ -1,7 +1,7 @@
 // app_module.dart
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:organiza2/app/core/services/categoria_service.dart';
 import 'package:organiza2/app/core/services/file_service.dart';
+import 'package:organiza2/app/modules/categoria/categoria_module.dart';
 import 'package:organiza2/app/modules/operacao/controller/operacao_controller.dart';
 import 'package:organiza2/app/modules/operacao/controller/operacao_shared_controller.dart';
 import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
@@ -20,7 +20,6 @@ class AppModule extends Module {
     i.addLazySingleton(FileService.new);
     i.addLazySingleton(OperacaoService.new);
     i.addLazySingleton(OperacaoSharedService.new);
-    i.addLazySingleton(CategoriaService.new);
     i.addLazySingleton(RotinaService.new);
     i.addLazySingleton(UsuarioController.new);
     i.addLazySingleton(OperacaoController.new);
@@ -32,5 +31,6 @@ class AppModule extends Module {
     r.child('/', child: (context) => const AuthCheck());
     r.module('/usuario', module: UsuarioModule());
     r.module('/operacao', module: OperacaoModule());
+    r.module('/categoria', module: CategoriaModule());
   }
 }
