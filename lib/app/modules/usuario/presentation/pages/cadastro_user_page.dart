@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:organiza2/app/core/models/custom_exception.dart';
-import 'package:organiza2/app/core/utils/validator/email_validator.dart';
-import 'package:organiza2/app/modules/usuario/controllers/usuario_controller.dart';
-import 'package:organiza2/app/modules/usuario/core/models/usuario.dart';
-import 'package:organiza2/app/core/utils/date_ultils.dart';
-import 'package:organiza2/app/core/utils/masks.dart';
-import 'package:organiza2/app/core/widgets/widget_ultil.dart';
-import '../../../core/widgets/file_ultil.dart';
+import '../../../../core/models/custom_exception.dart';
+import '../../../../core/utils/validator/email_validator.dart';
+import '../controllers/usuario_controller.dart';
+import '../../domain/entities/usuario.dart';
+import '../../../../core/utils/date_ultils.dart';
+import '../../../../core/utils/masks.dart';
+import '../../../../core/widgets/widget_ultil.dart';
+import '../../../../core/widgets/file_ultil.dart';
 
 class CadastroUserPage extends StatefulWidget {
   const CadastroUserPage({super.key});
@@ -25,15 +25,11 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
   @override
   void initState() {
     final args = Modular.args.data;
-    user = args['user'];
-    operacao = args['operacao'];
+    user = args['user'] ?? Usuario.empty();
+    operacao = args['operacao'] ?? 'Cadastro';
 
     if (operacao.contains("Editar")) {
-      usuarioController.nome.text = user.name ?? "";
-      usuarioController.email.text = user.email ?? "";
-      usuarioController.dataNascimento.text =
-          DateUltils.formatarData(user.dataNascimento);
-      usuarioController.telefone.text = user.telefone ?? "";
+      usuarioController.popularFormulario(user);
     }
     super.initState();
   }
@@ -51,7 +47,7 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
           key: formKey,
           child: Column(
             children: [
-              FileUtil(context, user.photo, 'usuarios', user.refPhoto)
+              FileUtil(context, user.photoUrl, 'usuarios', user.photoRef)
                   .fieldPhoto(),
               SizedBox(height: espaco),
               WidgetUltil.returnField("Nome: ", usuarioController.nome,
@@ -132,8 +128,9 @@ class _CadastroUserPageState extends State<CadastroUserPage> {
           if (value.length < 6) {
             return "Senha deve ter no minímo 6 caracteres.";
           }
-          if (value != usuarioController.senha.text)
+          if (value != usuarioController.senha.text) {
             return "Senhas diferentes!";
+          }
           return null;
         });
   }

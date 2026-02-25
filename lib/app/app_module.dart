@@ -1,29 +1,29 @@
 // app_module.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/core/services/file_service.dart';
-import 'package:organiza2/app/modules/categoria/categoria_module.dart';
-import 'package:organiza2/app/modules/operacao/controller/operacao_controller.dart';
-import 'package:organiza2/app/modules/operacao/controller/operacao_shared_controller.dart';
-import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
-import 'package:organiza2/app/modules/operacao/core/services/operacao_shared_service.dart';
 import 'package:organiza2/app/core/services/rotina.service.dart';
 import 'package:organiza2/app/core/widgets/auth_check.dart';
+import 'package:organiza2/app/modules/categoria/categoria_module.dart';
 import 'package:organiza2/app/modules/operacao/operacao_module.dart';
-import 'package:organiza2/app/modules/usuario/controllers/usuario_controller.dart';
-import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
 import 'package:organiza2/app/modules/usuario/usuario_module.dart';
 
 class AppModule extends Module {
   @override
+  List<Module> get imports => [
+        UsuarioModule(),
+      ];
+
+  @override
   void binds(i) {
-    i.addLazySingleton(UserService.new);
+    // Firebase instances (compartilhadas globalmente)
+    i.addLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
+    i.addLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
+    
+    // Global Services (compartilhados entre módulos)
     i.addLazySingleton(FileService.new);
-    i.addLazySingleton(OperacaoService.new);
-    i.addLazySingleton(OperacaoSharedService.new);
     i.addLazySingleton(RotinaService.new);
-    i.addLazySingleton(UsuarioController.new);
-    i.addLazySingleton(OperacaoController.new);
-    i.addLazySingleton(OperacaoSharedController.new);
   }
 
   @override

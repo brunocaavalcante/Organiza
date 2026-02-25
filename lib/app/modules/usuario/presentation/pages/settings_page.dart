@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:organiza2/app/modules/usuario/controllers/usuario_controller.dart';
-import 'package:organiza2/app/modules/usuario/views/select_color_page.dart';
+import '../controllers/usuario_controller.dart';
+import '../widgets/select_color_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -83,9 +83,10 @@ class _SettingsPageState extends State<SettingsPage> {
           style: TextStyle(fontFamily: "Arial", color: color, fontSize: 20),
         ),
         trailing: Switch(
-            value: usuarioController.theme.value.darkMode ?? false,
+            value: usuarioController.theme.value.darkMode,
             onChanged: (value) async {
-              usuarioController.theme.value.darkMode = value;
+              usuarioController.theme.value = 
+                  usuarioController.theme.value.copyWith(darkMode: value);
               await usuarioController.atualizarPreferenciaUsuario();
             }));
   }
@@ -115,7 +116,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Colors.amber;
 
       if (color != null) {
-        usuarioController.theme.value.colorTheme = color.value;
+        usuarioController.theme.value = 
+            usuarioController.theme.value.copyWith(colorTheme: color.value);
         await usuarioController.atualizarPreferenciaUsuario();
       }
     });

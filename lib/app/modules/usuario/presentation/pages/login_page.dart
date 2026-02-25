@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:organiza2/app/core/models/custom_exception.dart';
-import 'package:organiza2/app/modules/usuario/controllers/usuario_controller.dart';
-import 'package:organiza2/app/modules/usuario/core/models/usuario.dart';
+import '../../../../core/models/custom_exception.dart';
+import '../controllers/usuario_controller.dart';
+import '../../domain/entities/usuario.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: (usuarioController.loading.value)
+                      children: (usuarioController.isLoading.value)
                           ? [
                               const Padding(
                                 padding: EdgeInsets.all(16),
@@ -102,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextButton(
                   onPressed: () {
                     Modular.to.pushNamed('/usuario/cadastro', arguments: {
-                      'user': Usuario(),
+                      'user': Usuario.empty(),
                       'operacao': 'Cadastro de Usuário',
                     });
                   },
