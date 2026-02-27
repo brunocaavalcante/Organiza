@@ -12,7 +12,7 @@ class AlertService {
         return Container(
           width: double.infinity,
           padding:
-              const EdgeInsets.only(top: 30, bottom: 10, left: 20, right: 20),
+              const EdgeInsets.only(top: 30, bottom: 100, left: 20, right: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -43,7 +43,7 @@ class AlertService {
         return Container(
           width: double.infinity,
           padding:
-              const EdgeInsets.only(top: 30, bottom: 10, left: 20, right: 20),
+              const EdgeInsets.only(top: 30, bottom: 100, left: 20, right: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -76,7 +76,7 @@ class AlertService {
             width: MediaQuery.of(context).size.width, // 100% da largura da tela
             child: Container(
                 padding: const EdgeInsets.only(
-                    top: 30, bottom: 10, left: 20, right: 20),
+                    top: 30, bottom: 100, left: 20, right: 20),
                 child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,

@@ -7,7 +7,7 @@ import 'package:organiza2/app/core/models/report/chartdata.dart';
 import 'package:organiza2/app/core/models/report/report.dart';
 import 'package:organiza2/app/core/services/alert_service.dart';
 import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
-import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
+import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/modules/reports/report_historico_operacao.dart';
 import 'package:organiza2/app/modules/reports/report_pizza.dart';
 
@@ -19,7 +19,7 @@ class HomeReportPage extends StatefulWidget {
 }
 
 class _HomeReportPageState extends State<HomeReportPage> {
-  final UserService auth = Modular.get<UserService>();
+  final UsuarioController usuarioController = Modular.get<UsuarioController>();
   final OperacaoService opService = Modular.get<OperacaoService>();
   int monthReportDesRec = DateTime.now().month;
   int monthReportCategoria = DateTime.now().month;
@@ -83,8 +83,8 @@ class _HomeReportPageState extends State<HomeReportPage> {
   }
 
   relatorioDespezaOperacao() {
-    final userId = auth.usuario.value?.uid;
-    if (userId == null) {
+    final userId = usuarioController.usuarioAtual.value?.authId;
+    if (userId == null || userId.isEmpty) {
       return const Center(child: Text('Usuário não está logado'));
     }
     
@@ -141,8 +141,8 @@ class _HomeReportPageState extends State<HomeReportPage> {
 
 //REGION REPORTS CATEGORIA
   relatorioDespezaCategoria() {
-    final userId = auth.usuario.value?.uid;
-    if (userId == null) {
+    final userId = usuarioController.usuarioAtual.value?.authId;
+    if (userId == null || userId.isEmpty) {
       return const Center(child: Text('Usuário não está logado'));
     }
     

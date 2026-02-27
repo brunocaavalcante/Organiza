@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get/get.dart';
 import 'package:organiza2/app/core/widgets/widget_ultil.dart';
 import '../../domain/entities/categoria.dart';
@@ -10,7 +11,7 @@ class SelectCategoriaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<CategoriaController>();
+    final controller = Modular.get<CategoriaController>();
 
     return Scaffold(
       appBar: WidgetUltil.barWithArrowBackIos(context, "Categorias", null),

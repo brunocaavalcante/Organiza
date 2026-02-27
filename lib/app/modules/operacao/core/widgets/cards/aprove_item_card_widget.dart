@@ -7,11 +7,11 @@ import 'package:organiza2/app/core/utils/masks.dart';
 import 'package:organiza2/app/modules/operacao/controller/operacao_shared_controller.dart';
 import 'package:organiza2/app/modules/operacao/core/models/operacao_shared.dart';
 import 'package:organiza2/app/modules/operacao/core/widgets/bottom_sheet/phone_input_bottom_sheet.dart';
-import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
+import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 
 class AproveItemCad extends StatelessWidget {
   final OperacaoShared op;
-  final userService = Modular.get<UserService>();
+  final usuarioController = Modular.get<UsuarioController>();
   final controller = Modular.get<OperacaoSharedController>();
   AproveItemCad({super.key, required this.op});
 
@@ -195,7 +195,8 @@ class AproveItemCad extends StatelessWidget {
     if (op.status == Status.Aprovado.index ||
         op.status == Status.Recusada.index) return const SizedBox.shrink();
 
-    if (op.idProprietario == userService.usuario.value!.uid) {
+    final userId = usuarioController.usuarioAtual.value?.authId ?? '';
+    if (op.idProprietario == userId) {
       return Row(mainAxisAlignment: MainAxisAlignment.end, children: [
         ElevatedButton.icon(
           style: ElevatedButton.styleFrom(

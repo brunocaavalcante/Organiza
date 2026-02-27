@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get/get.dart';
 import 'package:organiza2/app/core/controllers/base_controller.dart';
-import 'package:organiza2/app/core/models/categoria.dart';
 import 'package:organiza2/app/core/models/custom_exception.dart';
 import 'package:organiza2/app/core/models/enums.dart';
-import 'package:organiza2/app/core/services/alert_service.dart';
 import 'package:organiza2/app/core/services/rotina.service.dart';
 import 'package:organiza2/app/core/utils/string_utils.dart';
+import 'package:organiza2/app/modules/categoria/domain/entities/categoria.dart';
 import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao_shared.dart';
 import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
 import 'package:organiza2/app/modules/operacao/core/services/operacao_shared_service.dart';
 

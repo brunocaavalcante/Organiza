@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get/get.dart';
 import 'package:organiza2/app/core/widgets/widget_ultil.dart';
 import '../../domain/entities/categoria.dart';
 import '../widgets/select_icon_page.dart';
-import '../../../usuario/views/select_color_page.dart';
+import '../../../usuario/presentation/widgets/select_color_page.dart';
 import '../controllers/categoria_controller.dart';
 
 class CadastroCategoriaPage extends StatefulWidget {
@@ -21,7 +22,7 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
   @override
   void initState() {
     super.initState();
-    controller = Get.find<CategoriaController>();
+    controller = Modular.get<CategoriaController>();
     
     // Resetar seleções
     controller.setIcon(Icons.home);

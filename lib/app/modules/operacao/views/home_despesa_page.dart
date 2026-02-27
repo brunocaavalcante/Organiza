@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/core/models/enums.dart';
 import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
-import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
+import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
 import 'package:organiza2/app/modules/operacao/core/widgets/widget_list_itens_operacao.dart';
 
@@ -24,7 +24,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   double totalPago = 0;
   double total = 0;
   int? valueSelected;
-  final UserService auth = Modular.get<UserService>();
+  final UsuarioController usuarioController = Modular.get<UsuarioController>();
   DateTime data = DateTime.now();
   TextEditingController titulo = TextEditingController();
 
@@ -92,8 +92,8 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
   }
 
   containerTop() {
-    final userId = auth.usuario.value?.uid;
-    if (userId == null) {
+    final userId = usuarioController.usuarioAtual.value?.id;
+    if (userId == null || userId.isEmpty) {
       return const Center(child: Text('Usuário não está logado'));
     }
     
@@ -193,9 +193,9 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
         decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Theme.of(context).colorScheme.primary),
-        child: auth.usuario.value?.photoURL != null &&
-                auth.usuario.value?.photoURL != ''
-            ? Image.network(auth.usuario.value?.photoURL as String,
+        child: usuarioController.usuarioAtual.value?.photoUrl != null &&
+                usuarioController.usuarioAtual.value!.photoUrl.isNotEmpty
+            ? Image.network(usuarioController.usuarioAtual.value!.photoUrl,
                 fit: BoxFit.cover)
             : containerImagem());
   }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:organiza2/app/modules/operacao/views/aprovacao_opercao_page.dart';
 import 'package:organiza2/app/modules/operacao/views/home_despesa_page.dart';
 import 'package:organiza2/app/modules/reports/home_reports_page.dart';
-import 'package:organiza2/app/modules/usuario/views/settings_page.dart';
+import 'package:organiza2/app/modules/usuario/presentation/pages/settings_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});

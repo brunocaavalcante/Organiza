@@ -5,12 +5,12 @@ import 'package:organiza2/app/core/utils/validator/email_validator.dart';
 import 'package:organiza2/app/modules/operacao/controller/operacao_shared_controller.dart';
 import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
 import 'package:organiza2/app/modules/operacao/core/models/operacao_shared.dart';
-import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
+import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/core/widgets/widget_ultil.dart';
 
 class BottomSheetUtil {
-  static UserService userService = Modular.get<UserService>();
-  static final controller = Modular.get<OperacaoSharedController>();
+  static UsuarioController get usuarioController => Modular.get<UsuarioController>();
+  static OperacaoSharedController get controller => Modular.get<OperacaoSharedController>();
 
   static void showPhoneInputBottomSheet(BuildContext context, Operacao op) {
     TextEditingController emailController = TextEditingController();

@@ -8,12 +8,12 @@ import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
 import 'package:organiza2/app/modules/operacao/core/models/operacao_shared.dart';
 import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
 import 'package:organiza2/app/modules/operacao/core/services/operacao_shared_service.dart';
-import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
+import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 
 class OperacaoSharedController extends BaseController {
   final _service = Modular.get<OperacaoSharedService>();
   final _operacaoService = Modular.get<OperacaoService>();
-  final _userService = Modular.get<UserService>();
+  final _usuarioController = Modular.get<UsuarioController>();
 
   Stream<List<OperacaoShared>> obterOperacaoCompartilhadas() {
     try {
@@ -58,8 +58,8 @@ class OperacaoSharedController extends BaseController {
   Future salvarOperacaoCompartilhada(
       Operacao op, String email, BuildContext context) async {
     try {
-      var proprietario = await _userService.obterUsuario();
-      var destinatario = await _userService.obterUsuarioPorEmail(email);
+      var proprietario = await _usuarioController.obterUsuario();
+      var destinatario = await _usuarioController.obterUsuarioPorEmail(email);
 
       if (destinatario != null && proprietario != null) {
         var operacao = OperacaoShared();
@@ -67,10 +67,10 @@ class OperacaoSharedController extends BaseController {
         operacao.descricao = op.descricao;
         operacao.dataCadastro = DateTime.now();
         operacao.dataReferencia = op.dataReferencia;
-        operacao.idDestinatario = destinatario.id ?? "";
-        operacao.imgDestinatario = destinatario.photo;
-        operacao.imgProprietario = proprietario.photo;
-        operacao.idProprietario = proprietario.id ?? "";
+        operacao.idDestinatario = destinatario.id;
+        operacao.imgDestinatario = destinatario.photoUrl;
+        operacao.imgProprietario = proprietario.photoUrl;
+        operacao.idProprietario = proprietario.id;
         operacao.valor = op.valor;
         operacao.status = Status.PendenteAprovacao.index;
         operacao.idOperacao = op.id;

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:organiza2/app/core/models/categoria.dart';
 import 'package:organiza2/app/core/models/custom_exception.dart';
 import 'package:organiza2/app/core/models/enums.dart';
+import 'package:organiza2/app/modules/categoria/domain/entities/categoria.dart';
 import 'package:organiza2/app/modules/operacao/controller/operacao_controller.dart';
 import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
 import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
@@ -12,7 +12,6 @@ import 'package:organiza2/app/core/utils/date_ultils.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
 import 'package:organiza2/app/core/utils/string_utils.dart';
 import '../../../core/widgets/widget_ultil.dart';
-import '../../categoria/select_categoria_page.dart';
 
 class CadastroOperacaoPage extends StatefulWidget {
   const CadastroOperacaoPage({super.key});
@@ -231,7 +230,7 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       item.dataCadastro = DateTime.now();
       item.dataReferencia = dataRef;
       item.descricao = descricao.text;
-      item.categoria = categoria ?? Categoria();
+      item.categoria = categoria ?? Categoria.empty();
       item.valor = StringUtil().CoverterValorToDecimal(valor.text)!;
       item.tipoOperacao = operacao;
       item.titulo = titulo.text;
@@ -264,7 +263,7 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
       }
 
       if (sucesso == false) {
-      e.show(context);
+        e.show(context);
       }
     }
   }
@@ -331,13 +330,15 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   Widget fieldCategoria() {
     return ListTile(
         onTap: () async {
-          categoria = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const SelectCategoriaPage()));
-          setState(() {
-            validarForm();
-          });
+          final categoriaNew =
+              await Modular.to.pushNamed<Categoria>('/categoria/select');
+
+          if (categoriaNew != null) {
+            setState(() {
+              categoria = categoriaNew;
+              validarForm();
+            });
+          }
         },
         contentPadding:
             const EdgeInsets.only(top: 5, bottom: 5, left: 15, right: 10),

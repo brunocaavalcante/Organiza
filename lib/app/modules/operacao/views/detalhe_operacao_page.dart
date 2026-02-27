@@ -7,7 +7,7 @@ import 'package:organiza2/app/core/services/alert_service.dart';
 import 'package:organiza2/app/core/services/file_service.dart';
 import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
 import 'package:organiza2/app/core/services/rotina.service.dart';
-import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
+import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/core/utils/date_ultils.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
 import 'package:organiza2/app/core/widgets/file_ultil.dart';
@@ -24,12 +24,11 @@ class DetalheOperacaoPage extends StatefulWidget {
 
 class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   final FileService _fileSevice = Modular.get<FileService>();
-  final UserService _usuarioService = Modular.get<UserService>();
+  final UsuarioController _usuarioController = Modular.get<UsuarioController>();
   final RotinaService _rotinaService = Modular.get<RotinaService>();
   final OperacaoService _operacaoService = Modular.get<OperacaoService>();
   var valueSelected = 0;
   int parcelasPagas = 0;
-  bool anexar = false;
   late Operacao operacao;
   DateTime? dataRef;
 
@@ -262,8 +261,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
             child: WidgetUltil.returnButton(
                 "Anexar comprovante de pagamento", Icons.file_present_outlined,
                 () async {
-              anexar = true;
-              await pagarConta();
+              await anexarComprovante();
             }, Theme.of(context).colorScheme.inversePrimary))
         : Container();
   }
@@ -275,12 +273,12 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
             height: MediaQuery.of(context).size.height * 0.06,
             child: WidgetUltil.returnButton(
                 "Marcar como paga.", Icons.check_circle, () async {
-              AlertService.alertConfirmAnexar(
+              AlertService.alertConfirm(
                   context,
-                  "Conta Paga!",
-                  "Deseja anexar comprovante de pagamento?",
-                  onPressedAnexar,
-                  onPressedCancelar);
+                  "Confirmação",
+                  "Deseja realmente marcar como paga?",
+                  onPressedConfirmarPagamento,
+                  null);
             }, Theme.of(context).colorScheme.inversePrimary))
         : SizedBox(
             width: MediaQuery.of(context).size.width * 0.85,
@@ -299,14 +297,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
             }, Theme.of(context).colorScheme.inversePrimary));
   }
 
-  onPressedAnexar() async {
-    anexar = true;
-    await pagarConta();
-    Navigator.pop(context);
-  }
-
-  onPressedCancelar() async {
-    anexar = false;
+  onPressedConfirmarPagamento() async {
     await pagarConta();
     Navigator.pop(context);
   }
@@ -314,22 +305,39 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   pagarConta() async {
     try {
       operacao.status = Status.Pago.index;
-      var userId = _usuarioService.auth.currentUser!.uid;
+      await _operacaoService.atualizar(operacao);
+      setState(() {});
+    } on CustomException catch (e) {
+      var sucesso = false;
 
-      if (anexar) {
-        var file =
-            FileUtil(context, "", "comprovante/$userId", operacao.refImage);
-        file.selectFile().then((value) async {
-          setState(() {
-            operacao.urlComprovante = _fileSevice.destino;
-            operacao.refImage = _fileSevice.refImage;
-          });
-
-          await _operacaoService.atualizar(operacao);
-        });
-      } else {
-        await _operacaoService.atualizar(operacao);
+      if (e.error!.code == "not-found") {
+        sucesso = await _rotinaService.verificaErroDataRefrencia(
+            operacao, dataRef!.month);
       }
+
+      if (sucesso == false) {
+        e.show(context);
+      }
+      return null;
+    }
+  }
+
+  anexarComprovante() async {
+    try {
+      final userId = _usuarioController.usuarioAtual.value?.authId;
+      if (userId == null || userId.isEmpty) {
+        throw CustomException('Usuário não autenticado');
+      }
+      var file =
+          FileUtil(context, "", "comprovante/$userId", operacao.refImage);
+      file.selectFile().then((value) async {
+        setState(() {
+          operacao.urlComprovante = _fileSevice.destino;
+          operacao.refImage = _fileSevice.refImage;
+        });
+
+        await _operacaoService.atualizar(operacao);
+      });
       setState(() {});
     } on CustomException catch (e) {
       var sucesso = false;

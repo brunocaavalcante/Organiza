@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:organiza2/app/core/models/categoria.dart';
+import 'package:organiza2/app/modules/categoria/domain/entities/categoria.dart';
 import '../../../../core/models/entity.dart';
 
 class Operacao extends Entity {
@@ -41,7 +41,7 @@ class Operacao extends Entity {
       'repetir': repetir,
       'tipoOperacao': tipoOperacao,
       'tipoFrequencia': tipoFrequencia,
-      'categoria': categoria!.toJson(),
+      'categoria': {} as Categoria?,
       'afetarTotalizadores': afetarTotalizadores,
       'diaVencimento': diaVencimento
     };
@@ -67,7 +67,8 @@ class Operacao extends Entity {
         : null;
     id = map['id'];
     valor = map['valor'];
-    categoria = Categoria().toEntity(map['categoria']);
+    categoria = {} as Categoria?;//Categoria().toEntity(map['categoria']);
     return this;
   }
+  //TODO: Ajustar categoria
 }

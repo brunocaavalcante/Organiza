@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/core/models/enums.dart';
 import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
-import 'package:organiza2/app/modules/usuario/core/services/usuario_service.dart';
+import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
 import '../../../../core/widgets/widget_ultil.dart';
 
@@ -16,7 +16,7 @@ class ListItensOperacao extends StatefulWidget {
 }
 
 class _ListItensOperacaoState extends State<ListItensOperacao> {
-  final UserService auth = Modular.get<UserService>();
+  final UsuarioController usuarioController = Modular.get<UsuarioController>();
   TextEditingController titulo = TextEditingController();
 
   @override
@@ -42,8 +42,8 @@ class _ListItensOperacaoState extends State<ListItensOperacao> {
   }
 
   itemHistorico() {
-    final userId = auth.usuario.value?.uid;
-    if (userId == null) {
+    final userId = usuarioController.usuarioAtual.value?.authId;
+    if (userId == null || userId.isEmpty) {
       return const Center(child: Text('Usuário não está logado'));
     }
     
