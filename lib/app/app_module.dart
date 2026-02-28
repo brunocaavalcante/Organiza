@@ -6,6 +6,7 @@ import 'package:organiza2/app/core/services/file_service.dart';
 import 'package:organiza2/app/core/services/rotina.service.dart';
 import 'package:organiza2/app/core/widgets/auth_check.dart';
 import 'package:organiza2/app/modules/categoria/categoria_module.dart';
+import 'package:organiza2/app/modules/navigation/navigation_module.dart';
 import 'package:organiza2/app/modules/operacao/operacao_module.dart';
 import 'package:organiza2/app/modules/usuario/usuario_module.dart';
 
@@ -29,6 +30,7 @@ class AppModule extends Module {
   @override
   void routes(r) {
     r.child('/', child: (context) => const AuthCheck());
+    r.module('/navigation', module: NavigationModule());
     r.module('/usuario', module: UsuarioModule());
     r.module('/operacao', module: OperacaoModule());
     r.module('/categoria', module: CategoriaModule());

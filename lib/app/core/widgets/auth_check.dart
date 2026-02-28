@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get/get.dart';
 import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
-import '../../modules/home/home_page.dart';
 import '../../modules/usuario/presentation/pages/login_page.dart';
 
 class AuthCheck extends StatefulWidget {
@@ -29,9 +28,10 @@ class _AuthCheckState extends State<AuthCheck> {
       } else if (usuarioController.usuarioAtual.value == null) {
         return const LoginPage();
       } else {
-        return const HomePage(
-          title: "Home",
-        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Modular.to.navigate('/navigation/');
+        });
+        return const SizedBox.shrink();
       }
     });   
   }
