@@ -6,13 +6,28 @@ import '../../domain/entities/categoria.dart';
 import '../controllers/categoria_controller.dart';
 import 'cadastro_categoria_page.dart';
 
-class SelectCategoriaPage extends StatelessWidget {
+class SelectCategoriaPage extends StatefulWidget {
   const SelectCategoriaPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Modular.get<CategoriaController>();
+  State<SelectCategoriaPage> createState() => _SelectCategoriaPageState();
+}
 
+class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
+  late final CategoriaController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Modular.get<CategoriaController>();
+    
+    if (controller.categorias.isEmpty) {
+      controller.carregarCategorias();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: WidgetUltil.barWithArrowBackIos(context, "Categorias", null),
       body: Obx(() {
@@ -20,7 +35,7 @@ class SelectCategoriaPage extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return _buildBody(context, controller);
+        return _buildBody(context);
       }),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -30,6 +45,7 @@ class SelectCategoriaPage extends StatelessWidget {
               builder: (context) => const CadastroCategoriaPage(),
             ),
           );
+          controller.carregarCategorias();
         },
         tooltip: 'Add Categoria',
         child: const Icon(Icons.add),
@@ -37,7 +53,7 @@ class SelectCategoriaPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, CategoriaController controller) {
+  Widget _buildBody(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.95,
       height: MediaQuery.of(context).size.height,
@@ -47,14 +63,14 @@ class SelectCategoriaPage extends StatelessWidget {
         children: [
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.82,
-            child: Obx(() => _buildList(context, controller)),
+            child: Obx(() => _buildList(context)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildList(BuildContext context, CategoriaController controller) {
+  Widget _buildList(BuildContext context) {
     if (controller.categorias.isEmpty) {
       return const Center(
         child: Text('Nenhuma categoria encontrada'),
@@ -69,7 +85,7 @@ class SelectCategoriaPage extends StatelessWidget {
           width: MediaQuery.of(context).size.width,
           child: WidgetUltil.returnDimissibleExcluir(
             _buildCard(context, categoria),
-            _dismissExcluir(controller, categoria.id),
+            _dismissExcluir(categoria.id),
           ),
         );
       },
@@ -106,10 +122,7 @@ class SelectCategoriaPage extends StatelessWidget {
     );
   }
 
-  Function(DismissDirection)? _dismissExcluir(
-    CategoriaController controller,
-    String id,
-  ) {
+  Function(DismissDirection)? _dismissExcluir(String id) {
     return (_) async {
       await controller.excluirCategoria(id);
     };
