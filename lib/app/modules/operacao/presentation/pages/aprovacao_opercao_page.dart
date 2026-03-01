@@ -14,12 +14,13 @@ class AprovacaoOperacao extends StatefulWidget {
 class _AprovacaoOperacaoState extends State<AprovacaoOperacao>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  final _controller = Modular.get<OperacaoSharedController>();
+  late OperacaoSharedController _controller;
   late Size size;
 
   @override
   void initState() {
     super.initState();
+    _controller = Modular.get<OperacaoSharedController>();
     _tabController = TabController(vsync: this, length: 2);
   }
 

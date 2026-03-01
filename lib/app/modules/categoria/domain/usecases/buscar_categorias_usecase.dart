@@ -10,7 +10,6 @@ class BuscarCategoriasUseCase {
   Future<List<Categoria>> call() async {
     final categorias = await repository.getAll();
     
-    // Ordenar por descrição
     categorias.sort((a, b) => a.descricao.compareTo(b.descricao));
     
     return categorias;

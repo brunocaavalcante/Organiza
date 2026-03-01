@@ -195,7 +195,7 @@ class AproveItemCad extends StatelessWidget {
     if (op.status == Status.Aprovado.index ||
         op.status == Status.Recusada.index) return const SizedBox.shrink();
 
-    final userId = usuarioController.usuarioAtual.value?.authId ?? '';
+    final userId = usuarioController.usuarioAtual.value?.id ?? '';
     if (op.idProprietario == userId) {
       return Row(mainAxisAlignment: MainAxisAlignment.end, children: [
         ElevatedButton.icon(

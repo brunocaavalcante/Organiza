@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get/get.dart';
 import 'package:organiza2/app/core/models/custom_exception.dart';
 import '../../domain/entities/categoria.dart';
@@ -58,8 +59,7 @@ class CategoriaController extends GetxController {
       await _salvarUseCase.call(categoria);
 
       await carregarCategorias();
-
-      Get.back(); // Volta para tela anterior
+      Modular.to.pushNamed('/categoria/select');
       Get.snackbar(
         'Sucesso',
         'Categoria salva com sucesso',

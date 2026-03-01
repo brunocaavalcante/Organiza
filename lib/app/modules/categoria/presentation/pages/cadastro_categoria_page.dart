@@ -169,7 +169,7 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
           SizedBox(height: altura),
           
           // Botão Salvar
-          WidgetUltil.returnButtonSalvar(_onSalvar),
+          WidgetUltil.returnButtonSalvar(_onSalvar()),
         ],
       );
     });

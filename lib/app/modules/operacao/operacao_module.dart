@@ -54,19 +54,19 @@ class OperacaoModule extends Module {
         () => BuscarOperacoesPorDataUseCase(Modular.get<OperacaoRepository>()));
 
     // UseCases - OperacaoShared
-    i.add(() =>
+    i.addLazySingleton(() =>
         SalvarOperacaoSharedUseCase(Modular.get<OperacaoSharedRepository>()));
-    i.add(() =>
+    i.addLazySingleton(() =>
         EditarOperacaoSharedUseCase(Modular.get<OperacaoSharedRepository>()));
-    i.add(() =>
+    i.addLazySingleton(() =>
         ExcluirOperacaoSharedUseCase(Modular.get<OperacaoSharedRepository>()));
-    i.add(() => BuscarOperacoesCompartilhadasUseCase(
+    i.addLazySingleton(() => BuscarOperacoesCompartilhadasUseCase(
         Modular.get<OperacaoSharedRepository>()));
-    i.add(() => BuscarHistoricoOperacoesCompartilhadasUseCase(
+    i.addLazySingleton(() => BuscarHistoricoOperacoesCompartilhadasUseCase(
         Modular.get<OperacaoSharedRepository>()));
-    i.add(() =>
+    i.addLazySingleton(() =>
         BuscarOperacaoPorIdUseCase(Modular.get<OperacaoSharedRepository>()));
-    i.add(() => AprovarContaCompartilhadaUseCase(
+    i.addLazySingleton(() => AprovarContaCompartilhadaUseCase(
         Modular.get<OperacaoSharedRepository>(),
         Modular.get<OperacaoRepository>()));
 
@@ -85,7 +85,7 @@ class OperacaoModule extends Module {
         Modular.get<SalvarOperacaoSharedUseCase>(),
         Modular.get<EditarOperacaoSharedUseCase>(),
         Modular.get<ExcluirOperacaoSharedUseCase>(),
-        Modular.get<AprovarContaCompartilhadaUseCase>(),
+        Modular.get<AprovarContaCompartilhadaUseCase>()
       ),
     );
   }

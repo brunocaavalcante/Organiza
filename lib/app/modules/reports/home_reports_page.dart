@@ -2,11 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/core/models/enums.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
+import 'package:organiza2/app/modules/operacao/data/models/operacao_model.dart';
 import 'package:organiza2/app/core/models/report/chartdata.dart';
 import 'package:organiza2/app/core/models/report/report.dart';
 import 'package:organiza2/app/core/services/alert_service.dart';
-import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
 import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/modules/reports/report_historico_operacao.dart';
 import 'package:organiza2/app/modules/reports/report_pizza.dart';
@@ -20,7 +19,6 @@ class HomeReportPage extends StatefulWidget {
 
 class _HomeReportPageState extends State<HomeReportPage> {
   final UsuarioController usuarioController = Modular.get<UsuarioController>();
-  final OperacaoService opService = Modular.get<OperacaoService>();
   int monthReportDesRec = DateTime.now().month;
   int monthReportCategoria = DateTime.now().month;
   int monthReportOperacao = DateTime.now().month;
@@ -62,7 +60,7 @@ class _HomeReportPageState extends State<HomeReportPage> {
       
       Map<String, dynamic> data = docData as Map<String, dynamic>;
       data["Id"] = element.id;
-      var item = Operacao().toEntity(data);
+      var item = OperacaoModel.fromFirestore(data, element.id);
 
       if (item.tipoOperacao == TipoOperacao.Recibo.index &&
           item.afetarTotalizadores) {
@@ -83,7 +81,7 @@ class _HomeReportPageState extends State<HomeReportPage> {
   }
 
   relatorioDespezaOperacao() {
-    final userId = usuarioController.usuarioAtual.value?.authId;
+    final userId = usuarioController.usuarioAtual.value?.id;
     if (userId == null || userId.isEmpty) {
       return const Center(child: Text('Usuário não está logado'));
     }
@@ -141,7 +139,7 @@ class _HomeReportPageState extends State<HomeReportPage> {
 
 //REGION REPORTS CATEGORIA
   relatorioDespezaCategoria() {
-    final userId = usuarioController.usuarioAtual.value?.authId;
+    final userId = usuarioController.usuarioAtual.value?.id;
     if (userId == null || userId.isEmpty) {
       return const Center(child: Text('Usuário não está logado'));
     }
@@ -212,7 +210,7 @@ class _HomeReportPageState extends State<HomeReportPage> {
       
       Map<String, dynamic> data = docData as Map<String, dynamic>;
       data["Id"] = element.id;
-      var operacao = Operacao().toEntity(data);
+      var operacao = OperacaoModel.fromFirestore(data, element.id);
 
       if (operacao.tipoOperacao == TipoOperacao.Recibo.index) continue;
       

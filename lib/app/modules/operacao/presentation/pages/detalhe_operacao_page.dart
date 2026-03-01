@@ -329,7 +329,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
 
   anexarComprovante() async {
     try {
-      final userId = _usuarioController.usuarioAtual.value?.authId;
+      final userId = _usuarioController.usuarioAtual.value?.id;
       if (userId == null || userId.isEmpty) {
         throw CustomException('Usuário não autenticado');
       }

@@ -220,7 +220,7 @@ class UsuarioController extends BaseController {
       }
 
       // Atualizar preferências no repository
-      await _atualizarPreferenciasUseCase(usuario.authId, theme.value);
+      await _atualizarPreferenciasUseCase(usuario.id, theme.value);
       
       final usuarioAtualizado = await _buscarUsuarioUseCase();
       if (usuarioAtualizado != null) {
