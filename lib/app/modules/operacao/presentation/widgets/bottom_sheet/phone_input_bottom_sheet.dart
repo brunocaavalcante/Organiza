@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/core/models/enums.dart';
 import 'package:organiza2/app/core/utils/validator/email_validator.dart';
-import 'package:organiza2/app/modules/operacao/controller/operacao_shared_controller.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao_shared.dart';
+import 'package:organiza2/app/modules/operacao/domain/entities/operacao.dart';
+import 'package:organiza2/app/modules/operacao/domain/entities/operacao_shared.dart';
+import 'package:organiza2/app/modules/operacao/presentation/controllers/operacao_shared_controller.dart';
 import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/core/widgets/widget_ultil.dart';
 
@@ -114,10 +114,12 @@ class BottomSheetUtil {
                           Icons.mobile_screen_share_rounded,
                           () async {
                             if (justificativaController.text.isNotEmpty) {
-                              op.status = Status.Recusada.index;
-                              op.justificativa = justificativaController.text;
+                              final opAtualizado = op.copyWith(
+                                status: Status.Recusada.index,
+                                justificativa: justificativaController.text,
+                              );
                               await controller.editarOperacaoCompartilhada(
-                                  op, context);
+                                  opAtualizado, context);
                               Navigator.pop(context);
                             }
                           },

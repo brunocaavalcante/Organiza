@@ -4,14 +4,13 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/core/models/custom_exception.dart';
 import 'package:organiza2/app/core/models/enums.dart';
 import 'package:organiza2/app/modules/categoria/domain/entities/categoria.dart';
-import 'package:organiza2/app/modules/operacao/controller/operacao_controller.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
-import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
+import 'package:organiza2/app/modules/operacao/presentation/controllers/operacao_controller.dart';
+import 'package:organiza2/app/modules/operacao/domain/entities/operacao.dart';
 import 'package:organiza2/app/core/services/rotina.service.dart';
 import 'package:organiza2/app/core/utils/date_ultils.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
 import 'package:organiza2/app/core/utils/string_utils.dart';
-import '../../../core/widgets/widget_ultil.dart';
+import '../../../../core/widgets/widget_ultil.dart';
 
 class CadastroOperacaoPage extends StatefulWidget {
   const CadastroOperacaoPage({super.key});
@@ -23,7 +22,6 @@ class CadastroOperacaoPage extends StatefulWidget {
 class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   final OperacaoController controller = Modular.get<OperacaoController>();
   final RotinaService _rotinaService = Modular.get<RotinaService>();
-  final OperacaoService _operacaoService = Modular.get<OperacaoService>();
   final formKey = GlobalKey<FormState>();
   final descricao = TextEditingController();
   final titulo = TextEditingController();
@@ -220,46 +218,65 @@ class _CadastroOperacaoPageState extends State<CadastroOperacaoPage> {
   }
 
   cadastrar() async {
-    Operacao item = operacaoModel ?? Operacao();
-
     try {
       var parcelas = int.tryParse(qtdParcelas.text) ?? 0;
-      item.repetir = isRepetir;
-      item.totalParcelas = parcelas;
-      item.tipoFrequencia = frequencia!.index;
-      item.dataCadastro = DateTime.now();
-      item.dataReferencia = dataRef;
-      item.descricao = descricao.text;
-      item.categoria = categoria ?? Categoria.empty();
-      item.valor = StringUtil().CoverterValorToDecimal(valor.text)!;
-      item.tipoOperacao = operacao;
-      item.titulo = titulo.text;
-      item.afetarTotalizadores = afetarTotalizadores;
-      item.diaVencimento = int.parse(diaVencimento.text);
+      var valorCalculado = StringUtil().CoverterValorToDecimal(valor.text)!;
+      
+      // Ajusta valor se for parcelado
+      if (frequencia == TipoFrequencia.Parcelado && parcelas > 0) {
+        valorCalculado = valorCalculado / parcelas;
+      }
+
+      final item = operacaoModel?.copyWith(
+        repetir: isRepetir,
+        totalParcelas: parcelas,
+        tipoFrequencia: frequencia!.index,
+        dataCadastro: DateTime.now(),
+        dataReferencia: dataRef,
+        descricao: descricao.text,
+        categoria: categoria ?? Categoria.empty(),
+        valor: valorCalculado,
+        tipoOperacao: operacao,
+        titulo: titulo.text,
+        afetarTotalizadores: afetarTotalizadores,
+        diaVencimento: int.parse(diaVencimento.text),
+      ) ?? Operacao(
+        repetir: isRepetir,
+        totalParcelas: parcelas,
+        tipoFrequencia: frequencia!.index,
+        dataCadastro: DateTime.now(),
+        dataReferencia: dataRef,
+        descricao: descricao.text,
+        categoria: categoria ?? Categoria.empty(),
+        valor: valorCalculado,
+        tipoOperacao: operacao,
+        titulo: titulo.text,
+        afetarTotalizadores: afetarTotalizadores,
+        diaVencimento: int.parse(diaVencimento.text),
+        status: Status.Pendente.index,
+      );
 
       if (operacaoModel == null) {
-        item.status = Status.Pendente.index;
-
+        // Usa o controller para chamar os use cases apropriados
         if (item.tipoFrequencia == TipoFrequencia.Parcelado.index) {
-          item.valor = item.valor / parcelas;
-          await _operacaoService.salvarComParcelas(item);
+          await controller.salvarComParcelas(item);
         } else if (item.tipoFrequencia == TipoFrequencia.AnoTodo.index) {
-          await _operacaoService.salvarAnoTodo(item);
+          await controller.salvarAnoTodo(item);
         } else {
-          await _operacaoService.salvar(item);
+          await controller.salvarOperacaoSimples(item);
         }
         Navigator.pop(context, false);
       } else {
-        await _operacaoService.atualizar(item);
+        await controller.atualizarOperacao(item);
         Modular.to.popAndPushNamed('/operacao/detalhe',
             arguments: {'dataRef': dataRef, 'operacao': item});
       }
     } on CustomException catch (e) {
       var sucesso = false;
 
-      if (e.error!.code == "not-found") {
+      if (e.error != null && e.error!.code == "not-found") {
         sucesso = await _rotinaService.verificaErroDataRefrencia(
-            item, dataRef!.month);
+            Operacao(dataReferencia: dataRef), dataRef!.month);
       }
 
       if (sucesso == false) {

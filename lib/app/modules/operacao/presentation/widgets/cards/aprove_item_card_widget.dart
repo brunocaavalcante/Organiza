@@ -4,9 +4,9 @@ import 'package:organiza2/app/core/models/enums.dart';
 import 'package:organiza2/app/core/services/alert_service.dart';
 import 'package:organiza2/app/core/utils/date_ultils.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
-import 'package:organiza2/app/modules/operacao/controller/operacao_shared_controller.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao_shared.dart';
-import 'package:organiza2/app/modules/operacao/core/widgets/bottom_sheet/phone_input_bottom_sheet.dart';
+import 'package:organiza2/app/modules/operacao/presentation/controllers/operacao_shared_controller.dart';
+import 'package:organiza2/app/modules/operacao/domain/entities/operacao_shared.dart';
+import 'package:organiza2/app/modules/operacao/presentation/widgets/bottom_sheet/phone_input_bottom_sheet.dart';
 import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 
 class AproveItemCad extends StatelessWidget {

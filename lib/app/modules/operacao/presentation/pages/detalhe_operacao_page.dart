@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/core/models/custom_exception.dart';
 import 'package:organiza2/app/core/models/enums.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
+import 'package:organiza2/app/modules/operacao/domain/entities/operacao.dart';
+import 'package:organiza2/app/modules/operacao/domain/usecases/excluir_operacao_usecase.dart';
+import 'package:organiza2/app/modules/operacao/domain/usecases/atualizar_operacao_usecase.dart';
+import 'package:organiza2/app/modules/operacao/domain/usecases/buscar_operacoes_por_data_usecase.dart';
 import 'package:organiza2/app/core/services/alert_service.dart';
 import 'package:organiza2/app/core/services/file_service.dart';
-import 'package:organiza2/app/modules/operacao/core/services/operacao_service.dart';
 import 'package:organiza2/app/core/services/rotina.service.dart';
 import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/core/utils/date_ultils.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
 import 'package:organiza2/app/core/widgets/file_ultil.dart';
 import 'package:organiza2/app/core/widgets/widget_ultil.dart';
-import 'package:organiza2/app/modules/operacao/core/widgets/bottom_sheet/phone_input_bottom_sheet.dart';
-import 'package:organiza2/app/modules/operacao/core/widgets/exibir_comprovante_widget.dart';
+import 'package:organiza2/app/modules/operacao/presentation/widgets/bottom_sheet/phone_input_bottom_sheet.dart';
+import 'package:organiza2/app/modules/operacao/presentation/widgets/exibir_comprovante_widget.dart';
 
 class DetalheOperacaoPage extends StatefulWidget {
   const DetalheOperacaoPage({super.key});
@@ -26,7 +28,6 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
   final FileService _fileSevice = Modular.get<FileService>();
   final UsuarioController _usuarioController = Modular.get<UsuarioController>();
   final RotinaService _rotinaService = Modular.get<RotinaService>();
-  final OperacaoService _operacaoService = Modular.get<OperacaoService>();
   var valueSelected = 0;
   int parcelasPagas = 0;
   late Operacao operacao;
@@ -187,7 +188,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
             item,
             onPressExcluirOk(item));
       } else {
-        await _operacaoService.excluir(item);
+        await Modular.get<ExcluirOperacaoUseCase>()(item);
 
         if (item.refImage != "") {
           await _fileSevice.excluirFile(item.refImage);
@@ -205,15 +206,15 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
     return (() async {
       try {
         if (AlertService.opSelecionada == 0) {
-          await _operacaoService!.excluir(item);
+          await Modular.get<ExcluirOperacaoUseCase>()(item);
 
           if (item.refImage != "") await _fileSevice.excluirFile(item.refImage);
         }
         if (AlertService.opSelecionada == 1) {
-          var listaExcluir = await _operacaoService.buscarOperacoesByData(item);
+          var listaExcluir = await Modular.get<BuscarOperacoesPorDataUseCase>()(item);
 
           for (var item in listaExcluir) {
-            await _operacaoService.excluir(item);
+            await Modular.get<ExcluirOperacaoUseCase>()(item);
 
             if (item.refImage != "") {
               await _fileSevice.excluirFile(item.refImage);
@@ -286,9 +287,12 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
             child: WidgetUltil.returnButton(
                 "Marcar como pendente.", Icons.close_rounded, () async {
               try {
-                operacao.status = Status.Pendente.index;
-                operacao.urlComprovante = "";
-                await _operacaoService.atualizar(operacao);
+                final operacaoAtualizada = operacao.copyWith(
+                  status: Status.Pendente.index,
+                  urlComprovante: "",
+                );
+                await Modular.get<AtualizarOperacaoUseCase>()(operacaoAtualizada);
+                operacao = operacaoAtualizada;
                 Navigator.pop(context);
               } on CustomException catch (e) {
                 e.show(context);
@@ -304,13 +308,14 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
 
   pagarConta() async {
     try {
-      operacao.status = Status.Pago.index;
-      await _operacaoService.atualizar(operacao);
+      final operacaoAtualizada = operacao.copyWith(status: Status.Pago.index);
+      await Modular.get<AtualizarOperacaoUseCase>()(operacaoAtualizada);
+      operacao = operacaoAtualizada;
       setState(() {});
     } on CustomException catch (e) {
       var sucesso = false;
 
-      if (e.error!.code == "not-found") {
+      if (e.error != null && e.error!.code == "not-found") {
         sucesso = await _rotinaService.verificaErroDataRefrencia(
             operacao, dataRef!.month);
       }
@@ -331,18 +336,20 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
       var file =
           FileUtil(context, "", "comprovante/$userId", operacao.refImage);
       file.selectFile().then((value) async {
+        final operacaoAtualizada = operacao.copyWith(
+          urlComprovante: _fileSevice.destino,
+          refImage: _fileSevice.refImage,
+        );
+        await Modular.get<AtualizarOperacaoUseCase>()(operacaoAtualizada);
         setState(() {
-          operacao.urlComprovante = _fileSevice.destino;
-          operacao.refImage = _fileSevice.refImage;
+          operacao = operacaoAtualizada;
         });
-
-        await _operacaoService.atualizar(operacao);
       });
       setState(() {});
     } on CustomException catch (e) {
       var sucesso = false;
 
-      if (e.error!.code == "not-found") {
+      if (e.error != null && e.error!.code == "not-found") {
         sucesso = await _rotinaService.verificaErroDataRefrencia(
             operacao, dataRef!.month);
       }
@@ -356,7 +363,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
 
   retornQtdParcelasPagas() async {
     if (operacao.totalParcelas > 0) {
-      var parcelas = await _operacaoService.buscarOperacoesByData(operacao);
+      var parcelas = await Modular.get<BuscarOperacoesPorDataUseCase>()(operacao);
 
       setState(() {
         parcelasPagas =

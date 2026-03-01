@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:organiza2/app/modules/operacao/controller/operacao_shared_controller.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao_shared.dart';
-import 'package:organiza2/app/modules/operacao/core/widgets/cards/aprove_item_card_widget.dart';
+import 'package:organiza2/app/modules/operacao/presentation/widgets/cards/aprove_item_card_widget.dart';
+import 'package:organiza2/app/modules/operacao/domain/entities/operacao_shared.dart';
+import 'package:organiza2/app/modules/operacao/presentation/controllers/operacao_shared_controller.dart';
 
 class AprovacaoOperacao extends StatefulWidget {
   const AprovacaoOperacao({super.key});

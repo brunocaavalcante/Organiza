@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/core/models/enums.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
+import 'package:organiza2/app/modules/operacao/domain/entities/operacao.dart';
+import 'package:organiza2/app/modules/operacao/data/models/operacao_model.dart';
 import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
 import '../../../../core/widgets/widget_ultil.dart';
@@ -42,7 +43,7 @@ class _ListItensOperacaoState extends State<ListItensOperacao> {
   }
 
   itemHistorico() {
-    final userId = usuarioController.usuarioAtual.value?.authId;
+    final userId = usuarioController.usuarioAtual.value?.id;
     if (userId == null || userId.isEmpty) {
       return const Center(child: Text('Usuário não está logado'));
     }
@@ -69,8 +70,7 @@ class _ListItensOperacaoState extends State<ListItensOperacao> {
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
             Map<String, dynamic> data =
                 document.data()! as Map<String, dynamic>;
-            var operacao = Operacao().toEntity(data);
-            operacao.id = document.id;
+            var operacao = OperacaoModel.fromFirestore(data, document.id);
 
             if (titulo.text.isEmpty) {
               return returnCardItem(operacao);

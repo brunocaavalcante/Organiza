@@ -2,10 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/core/models/enums.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
+import 'package:organiza2/app/modules/operacao/domain/entities/operacao.dart';
+import 'package:organiza2/app/modules/operacao/data/models/operacao_model.dart';
 import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
-import 'package:organiza2/app/modules/operacao/core/widgets/widget_list_itens_operacao.dart';
+import 'package:organiza2/app/modules/operacao/presentation/widgets/widget_list_itens_operacao.dart';
 
 class HomeDespesaPage extends StatefulWidget {
   const HomeDespesaPage({super.key});
@@ -121,8 +122,7 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
           total = 0;
           for (var element in snapshot.data!.docs) {
             Map<String, dynamic> data = element.data()! as Map<String, dynamic>;
-            var operacao = Operacao().toEntity(data);
-            operacao.id = element.id;
+            var operacao = OperacaoModel.fromFirestore(data, element.id);
             atualizaTotalizadores(operacao);
           }
           return Container(
