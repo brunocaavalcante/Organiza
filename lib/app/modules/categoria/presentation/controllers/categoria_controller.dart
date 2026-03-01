@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get/get.dart';
 import 'package:organiza2/app/core/models/custom_exception.dart';
+import 'package:organiza2/app/core/services/alert_service.dart';
 import '../../domain/entities/categoria.dart';
 import '../../domain/usecases/buscar_categorias_usecase.dart';
 import '../../domain/usecases/excluir_categoria_usecase.dart';
@@ -27,65 +28,51 @@ class CategoriaController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    carregarCategorias();
+    carregarCategorias(null);
   }
 
-  Future<void> carregarCategorias() async {
+  Future<void> carregarCategorias(BuildContext? context) async {
     try {
       isLoading.value = true;
       categorias.value = await _buscarUseCase.call();
     } on CustomException catch (e) {
-      Get.snackbar(
-        'Erro',
-        e.message,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      if (context != null) {
+        AlertService.alertErro(context, e.message);
+      }
     } catch (e) {
-      Get.snackbar(
-        'Erro',
-        'Erro inesperado ao carregar categorias',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      if (context != null) {
+        AlertService.alertErro(
+            context, 'Erro inesperado ao carregar categorias');
+      }
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> salvarCategoria(Categoria categoria) async {
+  Future<void> salvarCategoria(
+      BuildContext context, Categoria categoria) async {
     try {
       isLoading.value = true;
       await _salvarUseCase.call(categoria);
 
-      await carregarCategorias();
-      Modular.to.pushNamed('/categoria/select');
-      Get.snackbar(
-        'Sucesso',
+      await carregarCategorias(context);
+      await AlertService.alertaSucesso(
+        context,
         'Categoria salva com sucesso',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
       );
+      await Future.delayed(const Duration(milliseconds: 300));
+      Modular.to.pushNamed('/categoria/select');
     } on CustomException catch (e) {
-      Get.snackbar(
-        'Erro',
-        e.message,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      await AlertService.alertErro(context, e.message);
     } catch (e) {
-      Get.snackbar(
-        'Erro',
-        'Erro inesperado ao salvar categoria',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      await AlertService.alertErro(
+          context, 'Erro inesperado ao salvar categoria');
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> excluirCategoria(String id) async {
+  Future<void> excluirCategoria(BuildContext context, String id) async {
     try {
       isLoading.value = true;
       await _excluirUseCase.call(id);
@@ -93,26 +80,13 @@ class CategoriaController extends GetxController {
       // Remover da lista local
       categorias.removeWhere((cat) => cat.id == id);
 
-      Get.snackbar(
-        'Sucesso',
-        'Categoria excluída com sucesso',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      await AlertService.alertaSucesso(
+          context, 'Categoria excluída com sucesso');
     } on CustomException catch (e) {
-      Get.snackbar(
-        'Erro',
-        e.message,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      await AlertService.alertErro(context, e.message);
     } catch (e) {
-      Get.snackbar(
-        'Erro',
-        'Erro inesperado ao excluir categoria',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      await AlertService.alertErro(
+          context, 'Erro inesperado ao excluir categoria');
     } finally {
       isLoading.value = false;
     }

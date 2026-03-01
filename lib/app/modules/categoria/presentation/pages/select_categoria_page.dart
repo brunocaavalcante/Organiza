@@ -22,7 +22,9 @@ class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
     controller = Modular.get<CategoriaController>();
     
     if (controller.categorias.isEmpty) {
-      controller.carregarCategorias();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.carregarCategorias(context);
+      });
     }
   }
 
@@ -45,7 +47,7 @@ class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
               builder: (context) => const CadastroCategoriaPage(),
             ),
           );
-          controller.carregarCategorias();
+          controller.carregarCategorias(context);
         },
         tooltip: 'Add Categoria',
         child: const Icon(Icons.add),
@@ -124,7 +126,7 @@ class _SelectCategoriaPageState extends State<SelectCategoriaPage> {
 
   Function(DismissDirection)? _dismissExcluir(String id) {
     return (_) async {
-      await controller.excluirCategoria(id);
+      await controller.excluirCategoria(context, id);
     };
   }
 }

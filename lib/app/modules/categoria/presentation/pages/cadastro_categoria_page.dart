@@ -186,7 +186,7 @@ class _CadastroCategoriaPageState extends State<CadastroCategoriaPage> {
           fontFamily: 'MaterialIcons',
         );
 
-        await controller.salvarCategoria(categoria);
+        await controller.salvarCategoria(context, categoria);
       }
     };
   }

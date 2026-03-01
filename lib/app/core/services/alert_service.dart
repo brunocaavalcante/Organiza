@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:organiza2/app/modules/operacao/core/models/operacao.dart';
+import 'package:organiza2/app/modules/operacao/domain/entities/operacao.dart';
 
 class AlertService {
   static int opSelecionada = 0;
@@ -36,34 +36,83 @@ class AlertService {
     );
   }
 
-  static alertErro(BuildContext context, String text) {
-    return showModalBottomSheet(
+  static Future<bool> alertErro(BuildContext context, String mensagem, {String titulo = "Erro"}) async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      enableDrag: false,
       builder: (BuildContext context) {
         return Container(
-          width: double.infinity,
-          padding:
-              const EdgeInsets.only(top: 30, bottom: 100, left: 20, right: 20),
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                "Erro",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.error_outline,
+                  color: Colors.red.shade600,
+                  size: 48,
+                ),
               ),
-              const SizedBox(height: 5),
-              const Icon(Icons.error_outline_rounded,
-                  color: Colors.red, size: 60),
-              const SizedBox(height: 16),
-              Text(text,
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-              const SizedBox(height: 16)
+              const SizedBox(height: 20),
+              Text(
+                titulo,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                mensagem,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Entendi',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );
       },
     );
+    return result ?? false;
   }
 
   static alertConfirm(BuildContext context, String title, String subtitle,
@@ -292,31 +341,82 @@ class AlertService {
     );
   }
 
-  static void alertaSucess(BuildContext context, [String text = ""]) {
-    showModalBottomSheet(
+  static Future<bool> alertaSucesso(BuildContext context, String mensagem, {String titulo = "Sucesso"}) async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      enableDrag: false,
       builder: (BuildContext context) {
         return Container(
-          width: double.infinity,
-          padding:
-              const EdgeInsets.only(top: 30, bottom: 10, left: 20, right: 20),
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                'Operação realizada com sucesso!',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green.shade600,
+                  size: 48,
+                ),
               ),
-              const SizedBox(height: 16),
-              const Icon(Icons.check_circle, color: Colors.green, size: 80),
-              const SizedBox(height: 16),
-              Text(text,
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600]))
+              const SizedBox(height: 20),
+              Text(
+                titulo,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                mensagem,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Ok',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );
       },
     );
+    return result ?? false;
   }
 }

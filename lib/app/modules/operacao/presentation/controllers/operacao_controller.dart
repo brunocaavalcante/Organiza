@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:organiza2/app/core/controllers/base_controller.dart';
 import 'package:organiza2/app/core/models/custom_exception.dart';
 import 'package:organiza2/app/core/models/enums.dart';
+import 'package:organiza2/app/core/services/alert_service.dart';
 import 'package:organiza2/app/core/services/rotina.service.dart';
 import 'package:organiza2/app/core/utils/string_utils.dart';
 import 'package:organiza2/app/modules/categoria/domain/entities/categoria.dart';
@@ -13,7 +14,6 @@ import 'package:organiza2/app/modules/operacao/domain/usecases/salvar_com_parcel
 import 'package:organiza2/app/modules/operacao/domain/usecases/salvar_ano_todo_usecase.dart';
 import 'package:organiza2/app/modules/operacao/domain/usecases/atualizar_operacao_usecase.dart';
 
-/// Controller para gerenciar operações (usando Clean Architecture)
 class OperacaoController extends BaseController {
   final SalvarOperacaoUseCase _salvarOperacaoUseCase;
   final SalvarComParcelasUseCase _salvarComParcelasUseCase;
@@ -40,73 +40,46 @@ class OperacaoController extends BaseController {
   var isRepetir = false.obs;
   var afetarTotalizadores = true.obs;
 
-  final formKey = GlobalKey<FormState>();
-
-  Future<void> salvarOperacao() async {
-    if (!formKey.currentState!.validate()) {
-      return;
-    }
-    if (categoria.value == null) {
-      Get.snackbar('Erro', 'Selecione uma categoria');
-      return;
-    }
-
-    try {
-      final operacao = Operacao(
-        titulo: titulo.value,
-        descricao: descricao.value,
-        valor: StringUtil().CoverterValorToDecimal(valor.value)!,
-        totalParcelas: int.tryParse(qtdParcelas.value) ?? 0,
-        tipoFrequencia: frequencia.value.index,
-        diaVencimento: int.parse(diaVencimento.value),
-        repetir: isRepetir.value,
-        afetarTotalizadores: afetarTotalizadores.value,
-        categoria: categoria.value!,
-        status: Status.Pendente.index,
-        dataCadastro: DateTime.now(),
-        tipoOperacao: tipoOperacao.value,
-      );
-
-      await _salvarOperacaoUseCase(operacao);
-      Get.back(result: true);
-    } on CustomException catch (e) {
-      Get.snackbar('Erro ao salvar', e.message);
-    }
-  }
-
   /// Salva operação com parcelas
-  Future<void> salvarComParcelas(Operacao operacao) async {
+  Future<void> salvarComParcelas(BuildContext context, Operacao operacao) async {
     try {
       await _salvarComParcelasUseCase(operacao);
+      await AlertService.alertaSucesso(context, 'Operação com parcelas salva com sucesso');
+      await Future.delayed(const Duration(milliseconds: 300));
     } on CustomException catch (e) {
-      rethrow;
+      await AlertService.alertErro(context, e.message, titulo: 'Erro ao salvar');
     }
   }
 
   /// Salva operação para o ano todo
-  Future<void> salvarAnoTodo(Operacao operacao) async {
+  Future<void> salvarAnoTodo(BuildContext context, Operacao operacao) async {
     try {
       await _salvarAnoTodoUseCase(operacao);
+      await AlertService.alertaSucesso(context, 'Operações do ano salvas com sucesso');
+      await Future.delayed(const Duration(milliseconds: 300));
     } on CustomException catch (e) {
-      rethrow;
+      await AlertService.alertErro(context, e.message, titulo: 'Erro ao salvar');
     }
   }
 
   /// Salva operação simples (sem parcelas ou repetição)
-  Future<void> salvarOperacaoSimples(Operacao operacao) async {
+  Future<void> salvarOperacaoSimples(BuildContext context, Operacao operacao) async {
     try {
       await _salvarOperacaoUseCase(operacao);
+      await AlertService.alertaSucesso(context, 'Operação salva com sucesso');
     } on CustomException catch (e) {
-      rethrow;
+      await AlertService.alertErro(context, e.message, titulo: 'Erro ao salvar');
     }
   }
 
   /// Atualiza uma operação existente
-  Future<void> atualizarOperacao(Operacao operacao) async {
+  Future<void> atualizarOperacao(BuildContext context, Operacao operacao) async {
     try {
       await _atualizarOperacaoUseCase(operacao);
+      await AlertService.alertaSucesso(context, 'Operação atualizada com sucesso');
+      await Future.delayed(const Duration(milliseconds: 300));
     } on CustomException catch (e) {
-      rethrow;
+      await AlertService.alertErro(context, e.message, titulo: 'Erro ao atualizar');
     }
   }
 }
