@@ -51,7 +51,7 @@ class _DetalheOperacaoPageState extends State<DetalheOperacaoPage> {
           btnEditarIcon(),
           btnCompartilharIcon(),
           SizedBox(width: MediaQuery.of(context).size.width * 0.05)
-        ]),
+        ], '/operacao/home'),
         body: body());
   }
 

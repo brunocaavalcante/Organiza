@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
 class WidgetUltil {
   static barWithArrowBackIos(BuildContext context, String title, dataRetorno,
-      [List<Widget>? actions]) {
+      [List<Widget>? actions, String? routeToNavigate]) {
     return AppBar(
         actions: actions,
         title: Text(title),
         leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios),
             onPressed: () {
-              Navigator.pop(context, dataRetorno);
+              if (routeToNavigate != null) {
+                Modular.to.navigate(routeToNavigate);
+              } else {
+                Navigator.pop(context, dataRetorno);
+              }
             }));
   }
 
