@@ -7,6 +7,7 @@ import 'package:organiza2/app/modules/operacao/data/models/operacao_model.dart';
 import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/core/utils/masks.dart';
 import 'package:organiza2/app/modules/operacao/presentation/widgets/widget_list_itens_operacao.dart';
+import 'package:organiza2/app/modules/navigation/presentation/pages/home_page.dart';
 
 class HomeDespesaPage extends StatefulWidget {
   const HomeDespesaPage({super.key});
@@ -50,6 +51,13 @@ class _HomeDespesaPageState extends State<HomeDespesaPage> {
         child: Scaffold(
             appBar: AppBar(
                 backgroundColor: Theme.of(context).colorScheme.primary,
+                leading: IconButton(
+                  icon: const Icon(Icons.menu),
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  onPressed: () {
+                    HomePage.scaffoldKey.currentState?.openDrawer();
+                  },
+                ),
                 title: containerMes()),
             body: body(),
             floatingActionButton: FloatingActionButton(

@@ -9,6 +9,7 @@ import 'package:organiza2/app/core/services/alert_service.dart';
 import 'package:organiza2/app/modules/usuario/presentation/controllers/usuario_controller.dart';
 import 'package:organiza2/app/modules/reports/report_historico_operacao.dart';
 import 'package:organiza2/app/modules/reports/report_pizza.dart';
+import 'package:organiza2/app/modules/navigation/presentation/pages/home_page.dart';
 
 class HomeReportPage extends StatefulWidget {
   const HomeReportPage({super.key});
@@ -30,7 +31,25 @@ class _HomeReportPageState extends State<HomeReportPage> {
     colorScheme = Theme.of(context).colorScheme;
     size = MediaQuery.of(context).size;
 
-    return Scaffold(body: ListView(children: [body()]));
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            HomePage.scaffoldKey.currentState?.openDrawer();
+          },
+        ),
+        title: Text(
+          "Relatórios",
+          style: TextStyle(
+            fontSize: 18,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+      ),
+      body: ListView(children: [body()]),
+    );
   }
 
   body() {

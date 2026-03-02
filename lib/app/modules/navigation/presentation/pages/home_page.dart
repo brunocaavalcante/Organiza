@@ -2,6 +2,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/modules/navigation/presentation/controllers/navigation_controller.dart';
+import 'package:organiza2/app/modules/navigation/presentation/widgets/app_drawer.dart';
 import 'package:organiza2/app/modules/operacao/presentation/pages/aprovacao_opercao_page.dart';
 import 'package:organiza2/app/modules/operacao/presentation/pages/home_despesa_page.dart';
 import 'package:organiza2/app/modules/reports/home_reports_page.dart';
@@ -9,6 +10,8 @@ import 'package:organiza2/app/modules/usuario/presentation/pages/settings_page.d
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  static final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -44,6 +47,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: HomePage.scaffoldKey,
+      drawer: const AppDrawer(),
       body: _telas[_navigationController.currentTabIndex],
       bottomNavigationBar: _buildNavigationBar(),
     );

@@ -3,6 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:organiza2/app/modules/operacao/presentation/widgets/cards/aprove_item_card_widget.dart';
 import 'package:organiza2/app/modules/operacao/domain/entities/operacao_shared.dart';
 import 'package:organiza2/app/modules/operacao/presentation/controllers/operacao_shared_controller.dart';
+import 'package:organiza2/app/modules/navigation/presentation/pages/home_page.dart';
 
 class AprovacaoOperacao extends StatefulWidget {
   const AprovacaoOperacao({super.key});
@@ -34,6 +35,22 @@ class _AprovacaoOperacaoState extends State<AprovacaoOperacao>
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            HomePage.scaffoldKey.currentState?.openDrawer();
+          },
+        ),
+        title: Text(
+          "Compartilhamentos",
+          style: TextStyle(
+            fontSize: 18,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+      ),
       body: body(),
     );
   }
@@ -43,18 +60,11 @@ class _AprovacaoOperacaoState extends State<AprovacaoOperacao>
         length: 2,
         child: Column(children: [
           Container(
-            padding: EdgeInsets.only(top: size.height * 0.05, bottom: 5),
-            child: Column(children: [
-              Text("Compartilhamentos",
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Theme.of(context).colorScheme.onSurface)),
-              SizedBox(height: size.height * 0.02),
-              TabBar(
-                  labelColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                  controller: _tabController,
-                  tabs: const [Tab(text: 'Novo'), Tab(text: 'Histórico')])
-            ]),
+            padding: EdgeInsets.only(top: size.height * 0.02, bottom: 5),
+            child: TabBar(
+                labelColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                controller: _tabController,
+                tabs: const [Tab(text: 'Novo'), Tab(text: 'Histórico')]),
           ),
           SizedBox(
               height: size.height * 0.74,
